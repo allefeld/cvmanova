@@ -56,6 +56,7 @@ load(SPMname, 'SPM');
 % recreate volumes, for backwards compatibility (with SPM2?)
 fnames = SPM.xY.P;
 fnames = patchPath(fnames, dirName);     % and to enable reading moved data files
+
 fprintf(' reading volume information\n')
 VY = spm_vol(fnames);
 % but copy scaling information

@@ -1,4 +1,4 @@
-function res = runSearchlight(slRadius, mask, fun, varargin)
+function res = runSearchlight(slRadius, mask, dosave, fun, varargin)
 
 % general purpose searchlight:
 % apply function to data contained in a sliding spherical window
@@ -58,10 +58,36 @@ res = repmat(reshape(res, 1, []), nVolumeVoxels, 1);
 
 fprintf(' running searchlight\n')
 fprintf('  searchlight size: %d\n', size(di, 1))
-tic
-t = 0;
+
+cvvi_start = 1;
 cmvi = 0;
-for cvvi = 1 : nVolumeVoxels        % searchlight center volume voxel index
+t = 0;
+if dosave && exist('cms.mat','file')
+    
+    Cs = varargin{4};
+    cmsmat_struct = load('cms.mat');
+    if isfield(cmsmat_struct,'res') 
+        if ~isequal(varargin{4},cmsmat_struct.Cs)
+            error('Running cvManova Analzsis detected! Abort! Exterminate!')
+        end;
+        
+      
+        res = cmsmat_struct.res;        
+        cvvi_start = cmsmat_struct.cvvi;
+        cmvi = cmsmat_struct.cmvi-1;
+        
+        fprintf('Continuing ..... %6.1f min  %6d voxels  %5.1f %%\n', ...
+            t / 60, cmvi, cmvi / nMaskVoxels * 100)
+        
+    end;
+elseif dosave      
+    Cs = varargin{4};
+end;
+
+tic
+
+
+for cvvi = cvvi_start : nVolumeVoxels        % searchlight center volume voxel index
     % process only if center is within mask 
     if mask(cvvi)
         cmvi = cmvi + 1;            % searchlight center mask voxel index
@@ -85,7 +111,10 @@ for cvvi = 1 : nVolumeVoxels        % searchlight center volume voxel index
     
     % progress
     nt = toc;
-    if (nt - t > 30) || (cvvi == nVolumeVoxels)
+    if (nt - t > 60) || (cvvi == nVolumeVoxels)
+        if dosave
+            save cms.mat Cs res cvvi cmvi
+        end;
         t = nt;
         fprintf(' %6.1f min  %6d voxels  %5.1f %%\n', ...
             t / 60, cmvi, cmvi / nMaskVoxels * 100)

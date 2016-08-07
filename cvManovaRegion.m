@@ -43,7 +43,8 @@ end
 
 nContrasts = numel(Cs);
 
-if dirName(end) ~= '/', dirName = [dirName '/']; end
+if dirName(end) ~= filesep, dirName = [dirName filesep]; end
+
 
 % load data, design matrix etc.
 [Y, X, mask, misc] = loadDataSPM(dirName, region);

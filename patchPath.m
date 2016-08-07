@@ -18,25 +18,45 @@ function f = patchPath(f, dirName)
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
 
-% find common beginning of all filenames
-ind = find(var(f) > 0, 1, 'first');
-b = f(1, 1 : ind - 1);
+bothsep = '\/'; othersep = bothsep(find(filesep == '/\'));
 
-% decompose into folder hierarchy
-bp = regexp(b, '[^/]*/', 'match');
-dp = regexp(dirName, '[^/]*/', 'match');
 
-% use last common element to determine from and to root folders
-[~, bpi, dpi] = intersect(bp, dp);
-if ~isempty(bpi)
-    from = [bp{1 : max(bpi)}];
-    to = [dp{1 : max(dpi)}];
+if any(f(:) == othersep)
+    
+    if isunix
+        from = 'X:';
+        to = '/store02_analysis';
+    else
+        from = '/store02_analysis';
+        to = 'X:';
+    end;
+    
+    fprintf(' patching paths\n  from %s\n  to   %s\n and replacing file seperators\n', from, to)
+    
+    f = [repmat(to,size(f,1),1) f(:,length(from)+1:end)];
+    f = reshape(strrep(f(:)',othersep,filesep)',size(f,1),size(f,2));
 else
-    from = [bp{:}];
-    to = [dp{:}];
-end
-
-% patch folders
-fprintf(' patching paths\n  from %s\n  to   %s\n', from, to)
-f = [repmat(to, size(f, 1), 1), f(:, size(from, 2) + 1 : end)];
+    
+    % find common beginning of all filenames
+    ind = find(var(f) > 0, 1, 'first');
+    b = f(1, 1 : ind - 1);
+    
+    % decompose into folder hierarchy
+    bp = regexp(b, '[^/]*/', 'match');
+    dp = regexp(dirName, '[^/]*/', 'match');
+    
+    % use last common element to determine from and to root folders
+    [~, bpi, dpi] = intersect(bp, dp);
+    if ~isempty(bpi)
+        from = [bp{1 : max(bpi)}];
+        to = [dp{1 : max(dpi)}];
+    else
+        from = [bp{:}];
+        to = [dp{:}];
+    end
+    
+    % patch folders
+    fprintf(' patching paths\n  from %s\n  to   %s\n', from, to)
+    f = [repmat(to, size(f, 1), 1), f(:, size(from, 2) + 1 : end)];
+end;
 

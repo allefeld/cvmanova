@@ -41,7 +41,7 @@ end
 nContrasts = numel(Cs);
 outpattern = 'spmD_C%04d_P%04d.nii';
 
-if dirName(end) ~= '/', dirName = [dirName '/']; end
+if dirName(end) ~= filesep, dirName = [dirName filesep]; end
 
 % simplify saving images
 wd = cd;
@@ -92,7 +92,7 @@ clear Xrun Yrun
 
 % determine voxels per searchlight, and save as image
 fprintf('\ncomputing voxels per searchlight image\n')
-p = runSearchlight(slRadius, mask, @(vi)(size(vi, 1)));
+p = runSearchlight(slRadius, mask, 0, @(vi)(size(vi, 1)));
 saveMRImage(reshape(p, size(mask)), 'VPSL.nii', misc.v2mm, ...
     'voxels per searchlight');
 
@@ -110,7 +110,7 @@ clear p
 
 % run searchlight
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
-mDl = runSearchlight(slRadius, mask, @cvManova_compute, ...
+mDl = runSearchlight(slRadius, mask, 1, @cvManova_compute, ...
     XXs, betas, xis, Cs, permute, lambda);
 
 % separate contrast and permutation dimensions
