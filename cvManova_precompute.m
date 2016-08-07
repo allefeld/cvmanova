@@ -33,7 +33,7 @@ for ri = 1 : nRuns
     % estimate GLM
     beta = pinv(Xrun{ri}) * Yrun{ri};
     xi = Yrun{ri} - Xrun{ri} * beta;
-    % store precomputed matrices
+    % store precomputed matrices, possibly truncating
     betas{ri} = beta;
     xis{ri} = xi;
     XXs{ri} = Xrun{ri}' * Xrun{ri};

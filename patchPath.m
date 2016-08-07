@@ -1,14 +1,14 @@
-function fnames = patchPath(fnames, dirName)
+function f = patchPath(f, dirName)
 
 % patch the path portion of filenames to access them after being moved
 %
-% fnames = patchPath(fnames, dirname)
+% f = patchPath(f, dirname)
 %
 % Assumption: SPM.mat and image files resided in subfolders of some common
 % folder and were moved together. In moving, at least one element of the
 % folder hierarchy common to SPM.mat and image files was preserved.
 %
-% Copyright (C) 2013 Carsten Allefeld
+% Copyright (C) 2013-2015 Carsten Allefeld
 %
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
@@ -19,7 +19,6 @@ function fnames = patchPath(fnames, dirName)
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
 
 % find common beginning of all filenames
-f = cell2mat(fnames(:));
 ind = find(var(f) > 0, 1, 'first');
 b = f(1, 1 : ind - 1);
 
@@ -40,5 +39,4 @@ end
 % patch folders
 fprintf(' patching paths\n  from %s\n  to   %s\n', from, to)
 f = [repmat(to, size(f, 1), 1), f(:, size(from, 2) + 1 : end)];
-fnames = cellstr(f);
 

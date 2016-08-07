@@ -24,6 +24,10 @@ function ie = inestimability(C, X)
 % maximum "0" observed so far: 4.79*eps
 
 if size(C, 1) < size(X, 2)
+    if nargout == 0
+        % typical command window usage
+        fprintf('contrast does not extend across all regressors!\n')
+    end
     C(size(X, 2), end) = 0;
 end
 
