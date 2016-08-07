@@ -4,7 +4,7 @@ function ie = inestimability(C, X)
 %
 % ie = inestimability(C, X)
 %
-% C:    contrast matrix
+% C:    contrast matrix (column vectors)
 % X:    design matrix
 %
 % For an estimable contrast, ie should be 0 save for numerical error.

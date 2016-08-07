@@ -1,6 +1,6 @@
 % MVPA by cross-validated MANOVA
 % Carsten Allefeld
-% v1, 2013-12-20
+% v2, 2015-1-12
 
 This text documents the Matlab implementation for SPM of the method introduced
 by Carsten Allefeld and John-Dylan Haynes, "Searchlight-based multi-voxel
@@ -20,7 +20,7 @@ referenced therein, as well as the mask image (`mask.hdr` and `mask.img`). The
  beta images generated during estimation can be deleted.
 
 The functions may work with other versions, but have been specifically
-developed and tested with SPM8 and Matlab 7.11–7.14.
+developed and tested with SPM8 and Matlab 7.11–8.1 (R2010b–R2013a).
 
 
 # interface
@@ -95,7 +95,30 @@ systematically occur should be included in the model. Because sub-effects
 can be selected through the mechanism of constrasts, it is neither necessary
 nor advisable to use different GLMs as the basis of different MVPA analyses.
 
+– The fMRI model specification should include the modeling of temporal autocorrelation in order to correctly estimate the pattern distinctness. For this, the option "serial correlations" has to be set to the (default) value `AR(1)`.
+
 — Depending on the data set, it may be possible to perform the analysis for
 searchlight radii of up to 5 or 6. However, a large radius leads to very long
 computation times as well as decreased numerical precision. The recommended
 radius is 3, resulting in a searchlight of 123 voxels.
+
+
+# ROI analysis
+
+The publication Allefeld and Haynes (2014) describes cross-validated MANOVA only for searchlight analyses. This package contains additional *experimental* code for region–of–interest analyses. The function 
+
+>       [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
+
+performs ROI-based analysis on a set of voxels, specified by the parameter `region` in the form of a logical 3d-volume.
+
+Other than in the case of searchlight analysis, an ROI may contain so many voxels that adequate estimation of the error covariance matrix is no longer possible. This problem is here solved by shrinkage regularization towards the covariance matrix diagonal. If the regularization parameter (shrinkage strength) `lambda` is not specified, a near-optimal value is estimated from the data using the method of Schäfer and Strimmer (2005).
+
+Since the result of ROI analysis is not an image but a scalar, it is directly returned by the function.
+
+## Revisions
+
+– v2, 2015-1-12: experimental code for ROI analysis
+
+– v1, 2013-12-20: initial release
+
+

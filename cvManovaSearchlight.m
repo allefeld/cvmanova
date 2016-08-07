@@ -1,14 +1,15 @@
-function cvManovaSearchlight(dirName, slRadius, Cs, permute)
+function cvManovaSearchlight(dirName, slRadius, Cs, permute, lambda)
 
 % cross-validated MANOVA on searchlight
 %
-% cvManovaSearchlight(dirName, slRadius, Cs, permute = false)
+% cvManovaSearchlight(dirName, slRadius, Cs, permute = false, lambda = 0)
 %
 % dirName:  directory where the SPM.mat file referring to an estimated
 %           model is located
 % slRadius: radius of the searchlight sphere, in voxels
 % Cs:       cell array of contrast matrices
 % permute:  whether to compute permutation values of the test statistic
+% lambda:   regularization parameter (0–1)
 %
 % Output files are written to the same directory:
 % spmD_C####_P####.nii:
@@ -17,7 +18,7 @@ function cvManovaSearchlight(dirName, slRadius, Cs, permute)
 % VPSL.img  an image of the number of voxels within each searchlight
 % cms.mat   a record of the analysis parameters
 %
-% Copyright (C) 2013 Carsten Allefeld
+% Copyright (C) 2013-2014 Carsten Allefeld
 %
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
@@ -32,6 +33,9 @@ fprintf('\n\ncvManovaSearchlight\n\n')
 
 if nargin < 4
     permute = false;
+end
+if nargin < 5
+    lambda = 0;
 end
 
 nContrasts = numel(Cs);
@@ -81,9 +85,11 @@ saveMRImage(reshape(p, size(mask)), 'VPSL.nii', misc.v2mm, ...
     'voxels per searchlight');
 
 % error check
-pMax = max(p(:));
-if pMax > 0.9 * (misc.m - 1) * misc.fE
-    error('insufficient amount of data for searchlight size %d!', pMax)
+if lambda == 0
+    pMax = max(p(:));
+    if pMax > 0.9 * (misc.m - 1) * misc.fE
+        error('insufficient amount of data for searchlight size %d!', pMax)
+    end
 end
 
 % bias correction factor
@@ -93,7 +99,7 @@ clear p
 % run searchlight
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
 mDl = runSearchlight(slRadius, mask, @cvManova_compute, ...
-    XXs, betas, xis, Cs, permute);
+    XXs, betas, xis, Cs, permute, lambda);
 
 % separate contrast and permutation dimensions
 nContrasts = numel(Cs);

@@ -1,18 +1,19 @@
-function mDl = cvManova_compute(vi, XXs, betas, xis, Cs, permute)
+function mDl = cvManova_compute(vi, XXs, betas, xis, Cs, permute, lambda)
 
 % cross-validated MANOVA, main computation
 %
-% mDl = cvManova_compute(vi, XXs, betas, xis, CC, permute)
+% mDl = cvManova_compute(vi, XXs, betas, xis, Cs, permute, lambda)
 %
-% vi:         indices of voxels to use
-% XXs:        cell array of per-run precomputed X' X
-% betas:      cell array of per-run precomputed GLM parameter estimates
-% xis:        cell array of per-run precomputed GLM residuals
-% CC:         cell array of contrast matrices
-% permute:    whether to compute permutations
-% mDl:        cross-validated MANOVA statistic, raw version
+% vi:       indices of voxels to use
+% XXs:      cell array of per-run precomputed X' X
+% betas:    cell array of per-run precomputed GLM parameter estimates
+% xis:      cell array of per-run precomputed GLM residuals
+% Cs:       cell array of contrast matrices
+% permute:  whether to compute permutations
+% lambda:   regularization parameter (0–1)
+% mDl:      cross-validated MANOVA statistic, raw version
 %
-% Copyright (C) 2013 Carsten Allefeld
+% Copyright (C) 2013-2014 Carsten Allefeld
 %
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
@@ -64,6 +65,7 @@ else
     nContrasts = size(CCs, 1);
 end
 
+if nargin < 7, lambda = 0; end
 
 % pre-compute per-run E
 Es = cell(nRuns, 1);
@@ -80,6 +82,9 @@ for l = 1 : nRuns
     ks(l) = [];
     
     El = sum(cat(3, Es{ks}), 3);
+
+    % shrinkage regularization towards diagonal
+    El = (1 - lambda) * El + lambda * diag(diag(El));
     
     iEls{l} = eye(size(El)) / El;   % faster than inv
 end

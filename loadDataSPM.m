@@ -1,13 +1,16 @@
-function [Y, X, mask, misc] = loadDataSPM(dirName)
+function [Y, X, mask, misc] = loadDataSPM(dirName, region)
 
 % load fMRI data via SPM.mat
 %
 % [Y, X, mask, misc] = loadDataSPM(dirName)
+% [Y, X, mask, misc] = loadDataSPM(dirName, region)
 %
 % dirName:  name of directory that contains SPM.mat
+% region:   optional additional mask, logical 3d-volume
 % Y:        MR data (within mask), samples x voxels
 % X:        design matrix, samples x regressors
 % mask:     brain mask, logical 3d-volume
+%           read from mask.img, possibly combined with region mask
 % misc:     struct with additional data:
 %     v2mm  voxels to mm transformation matrix
 %     sRow  rows for each session
@@ -19,7 +22,7 @@ function [Y, X, mask, misc] = loadDataSPM(dirName)
 % Y & X and are high-pass filtered and whitened.
 % Y includes only those voxels selected through mask.
 %
-% Copyright (C) 2013 Carsten Allefeld
+% Copyright (C) 2013-2014 Carsten Allefeld
 %
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
@@ -28,6 +31,10 @@ function [Y, X, mask, misc] = loadDataSPM(dirName)
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
+
+if nargin < 2
+    region = [];
+end
 
 SPMname = [dirName 'SPM.mat'];
 
@@ -60,10 +67,20 @@ else
     VM = spm_vol([dirName 'mask.img']);
 end
 mask = logical(spm_read_vols(VM));
+% possibly apply region mask
+if all(arrayfun(@(i)(size(region, i) == size(mask, i)), 1 : 3))
+    mask = mask & logical(region);
+else
+    fprintf(' no region mask\n')
+end
 nMaskVoxels = sum(mask(:));
 
 % check memory
-memNeed = nMaskVoxels * nImages * 8 / 1024 / 1024;  % assuming double precision
+% memory needed, assuming double precision
+memNeed = nMaskVoxels * nImages * 8 / 1024 / 1024;  
+% during whitening and filtering temporarily twice as much is needed
+memNeed = memNeed * 2;
+% available system memory
 memFree = systemFree / 1024;
 fprintf(' memory needed  %7.1f MiB\n', memNeed)
 fprintf('        free    %7.1f MiB\n', memFree)
@@ -74,24 +91,26 @@ Y = nan(nImages, nMaskVoxels);
 fprintf(' reading images\n')
 for i = 1 : nImages             % slow, but saves memory
     y = spm_read_vols(VY(i));
-    Y(i, :) = y(mask)';                             % apply mask
+    Y(i, :) = y(mask)';         % apply mask
     if mod(i, 50) == 0
         fprintf(' %d of %d images read\n', i, nImages)
     end
 end
 fprintf('\n')
 
-% get whitening matrix
+% get whitening matrix and whiten data
 if isfield(SPM.xX, 'W')
     W = SPM.xX.W;
+    fprintf(' whitening data\n')
+    Y = W * Y;
 else
     fprintf(' * SPM.mat does not define whitening matrix!\n')
     W = 1;
 end
 
-% whiten and high-pass filter data
-fprintf(' filtering and whitening data\n')
-Y = spm_filter(SPM.xX.K, W * Y);
+% high-pass filter data
+fprintf(' high-pass-filtering data\n')
+Y = spm_filter(SPM.xX.K, Y);
 
 % get whitened and high-pass filtered design matrix
 if isfield(SPM.xX, 'xKXs')
