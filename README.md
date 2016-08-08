@@ -23,7 +23,7 @@ The beta images generated during estimation can be deleted.
 
 The main interface is given by the function
 
->       cvManovaSearchlight(dirName, slRadius, Cs, permute)
+    cvManovaSearchlight(dirName, slRadius, Cs, permute)
 
 which computes the cross-validated MANOVA on a searchlight. `dirName` is the
 name of the directory where the `SPM.mat` file is located, `slRadius` is the
@@ -42,20 +42,20 @@ replication internally, assuming that (at least the leading) regressors for
 each session model the same effects. If there are fewer rows in a contrast
 matrix than there are regressors for a session, the matrix is zero-padded.
 
-The searchlight radius $r$ is interpreted such that every voxel is included
+The searchlight radius *r* is interpreted such that every voxel is included
 for which the distance from the center voxel is *smaller than or equal* to the
-radius. This means that $r = 0$ leads to a searchlight size of 1 voxel,
-$r = 1$ to 7 voxels, $r = 2$ to 33 voxels, and so on. This definition may
+radius. This means that *r* = 0 leads to a searchlight size of 1 voxel,
+*r* = 1 to 7 voxels, *r* = 2 to 33 voxels, and so on. This definition may
 differ from the one used in other implementations of MVPA algorithms and in
-publications. Note that it is possible to use fractional values for $r$.
+publications. Note that it is possible to use fractional values for *r*.
 
 The result of the analysis are estimates of a multivariate measure of effect
-size, the pattern discriminability $D$, which is intended as a drop-in
+size, the pattern discriminability *D*, which is intended as a drop-in
 replacement for the conventional measure of classification accuracy.
-Statistical parametric maps of $D$ are written to images with filenames
+Statistical parametric maps of *D* are written to images with filenames
 of the form
 
->       spmD_C####_P####.nii
+    spmD_C####_P####.nii
 
 enumerating all contrasts and permutations, in the same directory as the
 `SPM.mat` file. Additionally, an image of the numbers of voxels contained in
@@ -67,9 +67,9 @@ a factorial design, in a form suitable for use with `cvManovaSearchlight`.
 
 For example, `Cs = contrasts([2 3])` results in
 
->       Cs = { [ 1  1  1 -1 -1 -1]'
->              [ 1 -1 -0  1 -1 -0 ; -0  1 -1 -0  1 -1]'
->              [ 1 -1 -0 -1  1  0 ; -0  1 -1  0 -1  1]' };
+    Cs = { [ 1  1  1 -1 -1 -1]'
+           [ 1 -1 -0  1 -1 -0 ; -0  1 -1 -0  1 -1]'
+           [ 1 -1 -0 -1  1  0 ; -0  1 -1  0 -1  1]' };
 
 For further documentation, please refer to the help texts in the `m`-files.
 
@@ -85,7 +85,7 @@ contrast separately.
 therefore be run on a computer with a sufficient amount of main memory, and
 using other memory-intensive programs at the same time should be avoided.
 
-– The estimation of $D$ is based on the GLM residuals and therefore depends
+– The estimation of *D* is based on the GLM residuals and therefore depends
 on a properly specified model. That means that all effects that are known to
 systematically occur should be included in the model. Because sub-effects
 can be selected through the mechanism of constrasts, it is neither necessary
@@ -108,7 +108,7 @@ The publication Allefeld and Haynes (2014) describes cross-validated MANOVA
 only for searchlight analyses. This package contains additional *experimental*
 code for region-of-interest analyses. The function 
 
->       [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
+    [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
 
 performs ROI-based analysis on a set of voxels, specified by the parameter
 `region` in the form of a logical 3d-volume.
