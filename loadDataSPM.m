@@ -53,12 +53,14 @@ fprintf(' via %s\n', SPMname)
 % load SPM.mat
 load(SPMname, 'SPM');
 
-% recreate volumes, for backwards compatibility (with SPM2?)
+% recreate volumes instead of using SPM.xY.VY
+% for compatibility with SPM.mat created by earlier SPM version
+% and to enable reading moved data files
 fnames = SPM.xY.P;
-fnames = patchPath(fnames, dirName);     % and to enable reading moved data files
+fnames = patchPath(fnames, dirName);
 fprintf(' reading volume information\n')
 VY = spm_vol(fnames);
-% but copy scaling information
+% but copy scaling information (created by SPM when/how/why?)
 [VY(:).pinfo] = SPM.xY.VY(:).pinfo;
 nImages = numel(VY);
 
