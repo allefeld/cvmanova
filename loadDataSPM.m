@@ -108,7 +108,8 @@ for i = 1 : nImages
     % read data directly (faster)
     y = V.private.dat(:, :, :, V.n(1));
     y = reshape(y, [], V.dim(3));
-    y = bsxfun(@plus, bsxfun(@times, y, V.pinfo(1, :)), V.pinfo(2, :));
+%     y = bsxfun(@plus, bsxfun(@times, y, V.pinfo(1, :)), V.pinfo(2, :));
+    % dat is already transformed!
     Y(i, :) = y(mask);
 
     % NOTE: if directly accessing memory-mapped data doesn't work,
