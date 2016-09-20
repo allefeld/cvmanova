@@ -93,9 +93,9 @@ clear Xrun Yrun
 % determine voxels per searchlight, and save as image
 fprintf('\ncomputing voxels per searchlight image\n')
 p = runSearchlight(slRadius, mask, @(vi)(size(vi, 1)));
-saveMRImage(reshape(p, size(mask)), 'VPSL.nii', misc.v2mm, ...
-    'voxels per searchlight');
-
+spmWriteImage(reshape(p, size(mask)), 'VPSL.nii', misc.v2mm, ...
+    'descrip', 'voxels per searchlight')
+    
 % error check
 if lambda == 0
     pMax = max(p(:));
@@ -126,8 +126,8 @@ clear mDl
 for ci = 1 : nContrasts
     for pi = 1 : nPerms
         fn = sprintf(outpattern, ci, pi);
-        saveMRImage(reshape(D(:, ci, pi), size(mask)), fn, misc.v2mm, ...
-            'pattern discriminability');
+        spmWriteImage(reshape(D(:, ci, pi), size(mask)), fn, misc.v2mm, ...
+            'descrip', 'pattern discriminability')
     end
 end
 
