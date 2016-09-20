@@ -89,7 +89,7 @@ memNeed = memNeed * 2;
 memFree = systemFree / 1024;
 fprintf(' memory needed  %7.1f MiB\n', memNeed)
 fprintf('        free    %7.1f MiB\n', memFree)
-if memFree < memNeed, warning('not enough memory!'), end
+if memFree < memNeed, fprintf(2, 'not enough memory!\n'), end
 
 % read and mask data
 fprintf(' reading images\n')
