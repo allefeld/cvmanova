@@ -86,13 +86,13 @@ for vi = 1 : nVols
     catch
         % if something goes wrong with accessing memory-mapped data,
         % fall back on spm_read_vols
+        y = spm_read_vols(V(vi));
+        Y(vi, :) = y(maskInd);
         if ~reported  % not yet reported fallback message?
             fprintf(2, ['error accessing memory-mapped data, ' ...
                 'falling back on spm_read_vols!\n']);
             reported = true;
         end
-        y = spm_read_vols(V(vi));
-        Y(vi, :) = y(maskInd);
     end
     % progress report
     if (mod(vi, 100) == 0) || (vi == nVols)

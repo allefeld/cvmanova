@@ -28,6 +28,8 @@ function [Y, X, mask, misc] = loadDataSPM(dirName, region, whiten, highpass)
 
 % change "v2mm" to mat
 
+
+% default argument values
 if nargin < 2
     region = [];
 end
@@ -36,29 +38,30 @@ if nargin < 3
 end
 if nargin < 4
     highpass = true;
-end    
-
-SPMname = fullfile(dirName, 'SPM.mat');
-
-fprintf('loading data\n')
-fprintf(' via %s\n', SPMname)
+end
 
 % load SPM.mat
+SPMname = fullfile(dirName, 'SPM.mat');
+fprintf('loading data\n')
+fprintf(' via %s\n', SPMname)
 load(SPMname, 'SPM');
 
-% recreate volumes instead of using SPM.xY.VY
-% for compatibility with SPM.mat created by earlier SPM version
-% and to enable reading moved data files
-fnames = SPM.xY.P;
-fnames = patchPath(fnames, dirName);
-fprintf(' reading volume information\n')
-VY = spm_vol(fnames);
-% but copy scaling information (created by SPM when/how/why?)
-[VY(:).pinfo] = SPM.xY.VY(:).pinfo;
+% get data volumes and check matching voxel grid
+VY = SPM.xY.VY;
 nImages = numel(VY);
-
-% check dimensions and orientations of all images
 spm_check_orientations(VY);
+
+% check whether data might have been moved
+if ~exist(VY(1).fname, 'file')
+    SPMold = fullfile(SPM.swd, 'SPM.mat');
+    comLen = min(numel(SPMname), numel(SPMold));
+    comPart = comLen - find(diff(...
+        [SPMname(end - comLen + 1 : end) == SPMold(end - comLen + 1 : end) 1] ...
+        ), 1, 'last');
+    fprintf(2, ' if analysis and data folders were moved together, try\n');
+    fprintf(2, '   spm_changepath(''%s'', ''%s'', ''%s'')\n', ...
+        dirName, SPMold(1 : end - comPart), SPMname(1 : end - comPart));
+end
 
 % read brain mask image
 if isfield(SPM, 'VM')
@@ -69,6 +72,7 @@ else
     VM = spm_vol(fullfile(dirName, 'mask.img'));
 end
 mask = logical(spm_read_vols(VM));
+
 % possibly apply region mask
 if isempty(region)
     region = true(size(mask));
@@ -82,17 +86,20 @@ end
 
 % check memory
 % memory needed, assuming double precision
-memNeed = sum(mask(:)) * nImages * 8 / 1024 / 1024;  
+memNeed = sum(mask(:)) * nImages * 8 / 1024 / 1024;
 % during whitening and filtering temporarily twice as much is needed
 memNeed = memNeed * 2;
 % available system memory
 memFree = systemFree / 1024;
 fprintf(' memory needed  %7.1f MiB\n', memNeed)
 fprintf('        free    %7.1f MiB\n', memFree)
-if memFree < memNeed, fprintf(2, 'not enough memory!\n'), end
+if memFree < memNeed, fprintf(2, 'not enough memory!\n'); end
 
 % read and mask data
 fprintf(' reading images\n')
+pattern = SPM.xY.P(1, :);
+pattern(~all(diff(SPM.xY.P) == 0)) = '?';
+fprintf('  from %s\n', pattern)
 [Y, mask] = spmReadVolsMasked(VY, mask);
 fprintf('\n')
 
