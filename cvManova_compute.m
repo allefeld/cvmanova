@@ -42,19 +42,10 @@ if isempty(vi)
 
     % prepare canonical contrast matrices
     nContrasts = numel(Cs);
-    CCs = cell(nContrasts, nRuns);
+    CCs = cell(nContrasts, 1);
     for ci = 1 : nContrasts
         % compute canonical contrast matrix
-        CC = pinv(Cs{ci}') * Cs{ci}';
-        
-        for k = 1 : nRuns
-            % zero-pad contrast to number of regressors
-            CCs{ci, k} = CC;
-            nReg = size(betas{k}, 1);
-            if size(CC, 1) < nReg
-                CCs{ci, k}(nReg, nReg) = 0;
-            end
-        end
+        CCs{ci} = pinv(Cs{ci}') * Cs{ci}';
     end
     
     % answer initialization call
@@ -95,11 +86,13 @@ mDl = zeros(nContrasts, nPerms);
 
 % for each contrast
 for ci = 1 : nContrasts
+    % number of regressors involved in contrast
+    nConReg = size(CCs{ci}, 1);
     
     % pre-compute per-run betaDelta
     betaDelta = cell(nRuns, 1);
     for k = 1 : nRuns
-        betaDelta{k} = CCs{ci, k} * betas{k}(:, vi);
+        betaDelta{k} = CCs{ci} * betas{k}(1 : nConReg, vi);
     end
     
     % pre-compute per-run H
@@ -108,7 +101,7 @@ for ci = 1 : nContrasts
         for l = 1 : nRuns
             if l == k, continue, end
             
-            Hs{k, l} = betaDelta{k}' * XXs{l} * betaDelta{l};
+            Hs{k, l} = betaDelta{k}' * XXs{l}(1 : nConReg, 1 : nConReg) * betaDelta{l};
         end
     end
     clear betaDelta
