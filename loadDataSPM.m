@@ -86,11 +86,10 @@ if all(size(region) == size(mask))
 else
     error('region mask doesn''t match\n')
 end
-nMaskVoxels = sum(mask(:));
 
 % check memory
 % memory needed, assuming double precision
-memNeed = nMaskVoxels * nImages * 8 / 1024 / 1024;  
+memNeed = sum(mask(:)) * nImages * 8 / 1024 / 1024;  
 % during whitening and filtering temporarily twice as much is needed
 memNeed = memNeed * 2;
 % available system memory
@@ -101,28 +100,7 @@ if memFree < memNeed, warning('not enough memory!'), end
 
 % read and mask data
 fprintf(' reading images\n')
-Y = nan(nImages, nMaskVoxels);
-for i = 1 : nImages
-    V = VY(i);
-
-    % read data directly (faster)
-    y = V.private.dat(:, :, :, V.n(1));
-    y = reshape(y, [], V.dim(3));
-%     y = bsxfun(@plus, bsxfun(@times, y, V.pinfo(1, :)), V.pinfo(2, :));
-    % dat is already transformed!
-    Y(i, :) = y(mask);
-
-    % NOTE: if directly accessing memory-mapped data doesn't work,
-    % comment the block above and uncomment the block below.
-    
-%     % read data using SPM routines
-%     y = spm_read_vols(V);
-%     Y(i, :) = y(mask);
-
-    if mod(i, 50) == 0
-        fprintf(' %d of %d images read\n', i, nImages)
-    end
-end
+[Y, mask] = spmReadVolsMasked(VY, mask);
 fprintf('\n')
 
 % get design matrix
