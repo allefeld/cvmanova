@@ -54,18 +54,6 @@ for ri = 1 : nRuns
 end
 clear Y X
 
-% if necessary, zero-pad design matrices
-nReg = max(cellfun(@(x) (size(x, 2)), Xrun));   % maximum number of regressors
-if min(cellfun(@(x) (size(x, 2)), Xrun)) < nReg
-    warning('number of regressors inconsistent across runs, zero-padding to %d', nReg)
-    for ri = 1 : nRuns
-        [n, q] = size(Xrun{ri});
-        if q < nReg
-            Xrun{ri} = [Xrun{ri}, zeros(n, nReg - q)];
-        end
-    end
-end
-
 % check contrasts
 for ci = 1 : nContrasts
     if size(Cs{ci}, 2) > rank(Cs{ci})
