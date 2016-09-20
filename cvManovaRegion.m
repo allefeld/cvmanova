@@ -78,7 +78,7 @@ end
 p = sum(mask(:));
 factor = ((misc.m - 1) * misc.fE - p - 1) / ((misc.m - 1) * misc.n);
 
-% run searchlight
+% compute on region
 fprintf('\ncomputing cross-validated MANOVA on region\n')
 cvManova_compute(nan(0, 1), XXs, betas, xis, Cs, permute, lambda);
 mDl = cvManova_compute(1 : p, XXs, betas, xis, Cs, permute, lambda);
