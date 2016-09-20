@@ -4,15 +4,8 @@ function kbytes = systemFree
 %
 % kbytes = systemFree()
 %
-% Copyright (C) 2014 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2014 Carsten Allefeld
 
 
 switch computer
@@ -24,7 +17,7 @@ switch computer
         
     case {'GLNX86', 'GLNXA64'}
         % read and parse /proc/meminfo
-        fid = fopen('/proc/meminfo','r');
+        fid = fopen('/proc/meminfo', 'r');
         d = textscan(fid, '%s%d%s');
         fclose(fid);
         names = d(1);
@@ -43,6 +36,16 @@ switch computer
         fprintf('systemFree is not implemented for this platform\n')
         kbytes = nan;
 end
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+
 
 
 % Old version for Linux, gives unreliable results

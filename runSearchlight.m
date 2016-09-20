@@ -19,15 +19,9 @@ function res = runSearchlight(slRadius, mask, fun, varargin)
 % A voxel is included in the searchlight if its distance from the center is
 % *smaller than or equal to* the radius.
 %
-% Copyright (C) 2013 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2013 Carsten Allefeld
+
 
 dim = size(mask);                 % volume dimensions
 nVolumeVoxels = prod(dim);
@@ -91,3 +85,13 @@ for cvvi = 1 : nVolumeVoxels        % searchlight center volume voxel index
             t / 60, cmvi, cmvi / nMaskVoxels * 100)
     end
 end
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+

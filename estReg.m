@@ -1,5 +1,16 @@
 function lambda = estReg(xis, fE)
 
+% lambda = estReg(xis, fE)
+%
+% Implements the method of
+% J. Schäfer and K. Strimmer, A shrinkage approach to large-scale covariance
+% estimation and implications for functional genomics, Statistical Applications
+% in Genetics and Molecular Biology, vol. 4, no. 1, 2005.
+%
+%
+% Copyright (C) 2015 Carsten Allefeld
+
+
 fprintf('\nestimating optimal regularization parameter lambda\n')
 
 nRuns = numel(xis);
@@ -53,4 +64,13 @@ fprintf('\n')
 lambda = mean(lambda);
 fprintf('  used value (mean across cv folds): %g\n', lambda);
 fprintf('\n')
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
 

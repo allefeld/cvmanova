@@ -11,15 +11,9 @@ function ie = inestimability(C, X)
 % A number smaller than 1 indicates that the contrast has an estimable
 % part. For a completely inestimable contrast, ie = 1.
 %
-% Copyright (C) 2013 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2013 Carsten Allefeld
+
 
 % maximum "0" observed so far: 4.79*eps
 
@@ -43,3 +37,13 @@ NX = null(X);
 % by a C-range vector that falls within the null-space of X.
 % The worst-case proportion across the range of C is given by the matrix norm:
 ie = norm(NX' * RC);
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+

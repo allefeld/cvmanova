@@ -13,15 +13,9 @@ function [cMatrix, cName] = contrasts(fLevel, fName)
 % the first factor is the one being enumerated slowest.
 % contrasts are not orthonormalized!
 %
-% Copyright (C) 2013 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2013 Carsten Allefeld
+
 
 % number of factors
 nf = size(fLevel, 2);
@@ -58,3 +52,13 @@ for ci = 1 : nc
     l = sprintf('×%s', fName{cs(ci, :)});
     cName{ci} = l(2:end);
 end
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+

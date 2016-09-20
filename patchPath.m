@@ -8,15 +8,9 @@ function f = patchPath(f, dirName)
 % folder and were moved together. In moving, at least one element of the
 % folder hierarchy common to SPM.mat and image files was preserved.
 %
-% Copyright (C) 2013-2015 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2013-2015 Carsten Allefeld
+
 
 % find common beginning of all filenames
 ind = find(var(f) > 0, 1, 'first');
@@ -39,4 +33,13 @@ end
 % patch folders
 fprintf(' patching paths\n  from %s\n  to   %s\n', from, to)
 f = [repmat(to, size(f, 1), 1), f(:, size(from, 2) + 1 : end)];
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
 

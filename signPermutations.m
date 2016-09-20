@@ -7,15 +7,9 @@ function [perms, nPerms] = signPermutations(n, maxPerms)
 % Permutations are randomly selected if the full enumeration
 % is larger than maxPerms.
 %
-% Copyright (C) 2013 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2013 Carsten Allefeld
+
 
 if nargin < 2
     maxPerms = 5000;    % adapted for z-values up to +-3
@@ -33,3 +27,13 @@ else
 end
 
 perms = (-1) .^ perms;    % permuted signs
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+

@@ -22,17 +22,10 @@ function [Y, X, mask, misc] = loadDataSPM(dirName, region, whiten, highpass)
 % If not otherwise specified, Y & X and are high-pass filtered and whitened.
 % Y includes only those voxels selected through mask.
 %
-% Copyright (C) 2013-2016 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2013-2016 Carsten Allefeld
 
-% modularize pure data reading code -> spmReadVols
+
 % change "v2mm" to mat
 
 if nargin < 2
@@ -147,3 +140,13 @@ for si = 1 : misc.m                                 % add constant regressors
 end
 misc.fE = Rdf / misc.m;                             % if not consistent across sessions,
 misc.n = Tdf / misc.m;                              % then this is an approximation
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+

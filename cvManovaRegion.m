@@ -21,15 +21,8 @@ function [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
 %   in Genetics and Molecular Biology, vol. 4, no. 1, 2005.
 % implemented in estReg.
 %
-% Copyright (C) 2015 Carsten Allefeld
 %
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+% Copyright (C) 2015 Carsten Allefeld
 
 
 fprintf('\n\ncvManovaRegion\n\n')
@@ -97,3 +90,13 @@ mDl = reshape(mDl, nContrasts, nPerms);
 
 % compute the unbiased estimate of the pattern discriminability D
 D = factor * mDl;
+
+
+% This program is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version. This program is distributed in the hope that
+% it will be useful, but without any warranty; without even the implied
+% warranty of merchantability or fitness for a particular purpose. See the
+% GNU General Public License <http://www.gnu.org/licenses/> for more details.
+
