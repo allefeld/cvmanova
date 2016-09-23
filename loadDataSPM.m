@@ -89,6 +89,8 @@ else
     error('region mask doesn''t match\n')
 end
 
+fprintf(' %d voxels\n', sum(mask(:)));
+
 % check memory
 % memory needed, assuming double precision
 memNeed = sum(mask(:)) * nImages * 8 / 1024 / 1024;

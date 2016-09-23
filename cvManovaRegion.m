@@ -2,7 +2,7 @@ function [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
 
 % cross-validated MANOVA on region
 %
-% [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute = false)
+% [D, p] = cvManovaRegion(dirName, region, Cs, lambda = 0, permute = false)
 %
 % dirName:  directory where the SPM.mat file referring to an estimated
 %           model is located
@@ -13,13 +13,7 @@ function [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
 % D:        pattern distinctness, contrasts x permutations
 % p:        number of voxels in the region
 %
-% If region is empty, all in-mask voxels are used.
-% If lambda is not specified or empty, its optimal value is estimated using
-% the method of
-%   J. Schäfer and K. Strimmer, A shrinkage approach to large-scale covariance
-%   estimation and implications for functional genomics, Statistical Applications
-%   in Genetics and Molecular Biology, vol. 4, no. 1, 2005.
-% implemented in estReg.
+% If region is [], all in-mask voxels are used.
 %
 %
 % Copyright (C) 2015 Carsten Allefeld
@@ -27,12 +21,12 @@ function [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
 
 fprintf('\n\ncvManovaRegion\n\n')
 
+if nargin < 4
+    lambda = 0;
+end    
 if nargin < 5
     permute = false;
 end
-if nargin < 4
-    lambda = [];
-end    
 
 nContrasts = numel(Cs);
 
@@ -69,8 +63,8 @@ fprintf('\nprecomputing GLM runwise\n')
 [XXs, betas, xis] = cvManova_precompute(Xrun, Yrun);
 clear Xrun Yrun
 
-% estimate regularization parameter
-if isempty(lambda)
+% estimate regularization parameter (undocumented experimental feature)
+if strcmp(lambda, 'estReg')
     lambda = estReg(xis, misc.fE);
 end
 
