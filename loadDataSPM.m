@@ -65,13 +65,18 @@ end
 
 % read brain mask image
 if isfield(SPM, 'VM')
+    try
+        mask = logical(spm_read_vols(SPM.VM));
+    catch
+        % SPM8 stores only the filename
+        VM = spm_vol([dirName SPM.VM.fname]);
+        mask = logical(spm_read_vols(VM));
+    end
     fprintf(' using brain mask from SPM.VM\n');
-    VM = spm_vol(fullfile(dirName, SPM.VM.fname));
 else
-    fprintf(' using brain mask from mask.img\n');
-    VM = spm_vol(fullfile(dirName, 'mask.img'));
+    mask = true(VY(1).dim);
+    fprintf(' no brain mask!\n')        % should not happen
 end
-mask = logical(spm_read_vols(VM));
 
 % possibly apply region mask
 if isempty(region)
@@ -101,7 +106,6 @@ pattern = SPM.xY.P(1, :);
 pattern(~all(diff(SPM.xY.P) == 0)) = '?';
 fprintf('  from %s\n', pattern)
 [Y, mask] = spmReadVolsMasked(VY, mask);
-fprintf('\n')
 
 % get design matrix
 X = SPM.xX.X;
