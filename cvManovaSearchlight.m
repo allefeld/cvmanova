@@ -34,7 +34,9 @@ end
 nContrasts = numel(Cs);
 outpattern = 'spmD_C%04d_P%04d.nii';
 
-if dirName(end) ~= '/', dirName = [dirName '/']; end
+if dirName(end) ~= filesep
+    dirName = [dirName filesep];
+end
 
 % simplify saving images
 wd = cd;
