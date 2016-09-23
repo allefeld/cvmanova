@@ -14,7 +14,8 @@ function res = runSearchlight(slRadius, mask, fun, varargin)
 % The function has to be of the form r = fun(mvi, ...)
 % mvi:      column vector of linear indices into the mask voxels
 % r:        row vector of results
-% The output of fun([]) is used to initialize res.
+% The function is called with mvi = [] first, and the output is used to
+% initialize res. 
 %
 % A voxel is included in the searchlight if its distance from the center is
 % *smaller than or equal to* the radius.

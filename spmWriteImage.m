@@ -125,7 +125,6 @@ create(N)
 
 % write data
 if (p.scl_slope == 1) && (p.scl_inter == 0)
-    fprintf('a\n')
     N.dat(:) = Y(:);
 else
     fprintf('b\n')
