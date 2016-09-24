@@ -19,7 +19,7 @@ function cvManovaSearchlight(dirName, slRadius, Cs, permute, lambda)
 % cms.mat   a record of the analysis parameters
 %
 %
-% Copyright (C) 2013-2014 Carsten Allefeld
+% Copyright (C) 2013-2016 Carsten Allefeld
 
 
 fprintf('\n\ncvManovaSearchlight\n\n')
@@ -38,9 +38,11 @@ if dirName(end) ~= filesep
     dirName = [dirName filesep];
 end
 
-% simplify saving images
+% simplify saving images by changing to directory
 wd = cd;
 cd(dirName)
+% ensure change back on exit
+cleanupObj = onCleanup(@() cd(wd));     
 
 % load data, design matrix etc.
 [Y, X, mask, misc] = loadDataSPM(dirName);
@@ -75,7 +77,7 @@ clear Xrun Yrun
 
 % determine voxels per searchlight, and save as image
 fprintf('\ncomputing voxels per searchlight image\n')
-p = runSearchlight(slRadius, mask, @(vi)(size(vi, 1)));
+p = runSearchlight([], slRadius, mask, @(vi)(size(vi, 1)));
 spmWriteImage(reshape(p, size(mask)), 'VPSL.nii', misc.v2mm, ...
     'descrip', 'voxels per searchlight')
     
@@ -91,11 +93,24 @@ end
 factor = ((misc.m - 1) * misc.fE - p - 1) / ((misc.m - 1) * misc.n);
 clear p
 
+% compute unique ID that encodes parameters:
+%   SPM.mat & referenced data -> <timestamp of SPM.mat>,
+%   slRadius, Cs, permute, lambda
+% encode as string
+if ~exist('gencode.m', 'file')
+    addpath([spm('dir') filesep 'matlabbatch'])
+end
+uid = gencode({['SPM.mat of ' getfield(dir('SPM.mat'), 'date')], ...
+    slRadius, Cs, permute, lambda});
+uid = sprintf('%s\n', uid{:});
+% compute Fletcher-16 checksum
+uid = dec2hex(fletcher16(uid), 4);
+
 % run searchlight
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
-mDl = runSearchlight(slRadius, mask, @cvManova_compute, ...
-    XXs, betas, xis, Cs, permute, lambda);
-
+mDl = runSearchlight(['cMS' uid '.mat'], slRadius, mask, ...
+    @cvManova_compute, XXs, betas, xis, Cs, permute, lambda);
+ 
 % separate contrast and permutation dimensions
 nContrasts = numel(Cs);
 nPerms = size(mDl, 2) / nContrasts;
@@ -116,8 +131,6 @@ end
 
 % analysis parameters
 save cms.mat slRadius Cs permute misc nPerms
-
-cd(wd)
 
 
 % This program is free software: you can redistribute it and/or modify it
