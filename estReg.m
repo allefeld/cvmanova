@@ -1,5 +1,7 @@
 function lambda = estReg(xis, fE)
 
+% estimate optimal shrinkage parameter
+%
 % lambda = estReg(xis, fE)
 %
 % Implements the method of

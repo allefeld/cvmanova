@@ -68,7 +68,7 @@ if isfield(SPM, 'VM')
     try
         mask = logical(spm_read_vols(SPM.VM));
     catch
-        % SPM8 stores only the filename
+        % SPM8 stores the filename without the path
         VM = spm_vol([dirName SPM.VM.fname]);
         mask = logical(spm_read_vols(VM));
     end
