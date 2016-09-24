@@ -108,7 +108,7 @@ uid = dec2hex(fletcher16(uid), 4);
 
 % run searchlight
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
-mDl = runSearchlight(['cMS' uid '.mat'], slRadius, mask, ...
+mDl = runSearchlight(['cmsCheckpoint' uid '.mat'], slRadius, mask, ...
     @cvManova_compute, XXs, betas, xis, Cs, permute, lambda);
  
 % separate contrast and permutation dimensions
@@ -130,7 +130,7 @@ for ci = 1 : nContrasts
 end
 
 % analysis parameters
-save cms.mat slRadius Cs permute misc nPerms
+save cmsParameters.mat slRadius Cs permute misc nPerms
 
 
 % This program is free software: you can redistribute it and/or modify it
