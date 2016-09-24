@@ -73,8 +73,11 @@ fprintf(' running searchlight\n')
 fprintf('  searchlight size: %d\n', size(di, 1))
 tic
 t = 0;
-cmvi = 0;
-for cvvi = 1 : nVolumeVoxels    % searchlight center *volume voxel index*
+cvvi = 0;   % searchlight center *volume voxel index*
+cmvi = 0;   % searchlight center *mask voxel index*
+while cvvi < nVolumeVoxels
+    cvvi = cvvi + 1;        % next volume voxel
+
     if (cvvi == 1) && ~isempty(checkpoint)
         % load checkpoint file, if existing
         if exist(checkpoint, 'file')
@@ -84,9 +87,9 @@ for cvvi = 1 : nVolumeVoxels    % searchlight center *volume voxel index*
         end
     end
     
-    % process only if center is within mask
+    % is center within mask?
     if mask(cvvi)
-        cmvi = cmvi + 1;        % searchlight center *mask voxel index*
+        cmvi = cmvi + 1;    % next mask voxel
         
         % searchlight center coordinates
         [xi, yi, zi] = ind2sub(dim, cvvi);
@@ -104,7 +107,6 @@ for cvvi = 1 : nVolumeVoxels    % searchlight center *volume voxel index*
         % call function and store output
         res(cvvi, :) = fun(mvi, varargin{:});
     end
-    
     
     nt = toc;
     if (nt - t > 30) || (cvvi == nVolumeVoxels)
