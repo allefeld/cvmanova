@@ -1,16 +1,14 @@
-function [Y, X, mask, misc] = loadDataSPM(dirName, region, whiten, highpass)
+function [Y, X, mask, misc] = loadDataSPM(dirName, region)
 
 % load fMRI data via SPM.mat
 %
-% [Y, X, mask, misc] = loadDataSPM(dirName, region = [], whiten = true, highpass = true)
+% [Y, X, mask, misc] = loadDataSPM(dirName, region = [])
 %
 % dirName:  name of directory that contains SPM.mat
-% region:   optional additional region mask, logical 3d-volume
-% whiten:   whether to whiten data and design matrix
-% highpass: whether to high-pass filter data and design matrix
-% Y:        MR data (within mask), volumes x voxels
-% X:        design matrix, volumes x regressors
-% mask:     brain mask, logical 3d-volume, possibly combined with region mask
+% region:   optional additional region mask, logical 3D volume
+% Y:        MR data (within mask), scans x voxels
+% X:        design matrix, scans x regressors
+% mask:     analysis brain mask, logical 3D volume; possibly combined with region mask
 % misc:     struct with additional data:
 %     v2mm  voxels to mm transformation matrix
 %     sRow  rows for each session
@@ -19,25 +17,16 @@ function [Y, X, mask, misc] = loadDataSPM(dirName, region, whiten, highpass)
 %     n     number of images per session
 %     fE    residual degrees of freedom per session
 %
-% If not otherwise specified, Y & X and are high-pass filtered and whitened.
+% Y & X and are high-pass filtered and whitened.
 % Y includes only those voxels selected through mask.
 %
 %
 % Copyright (C) 2013-2016 Carsten Allefeld
 
 
-% change "v2mm" to mat
-
-
 % default argument values
 if nargin < 2
     region = [];
-end
-if nargin < 3
-    whiten = true;
-end
-if nargin < 4
-    highpass = true;
 end
 
 % load SPM.mat
@@ -63,7 +52,7 @@ if ~exist(VY(1).fname, 'file')
         dirName, SPMold(1 : end - comPart), SPMname(1 : end - comPart));
 end
 
-% read brain mask image
+% read analysis brain mask image
 if isfield(SPM, 'VM')
     try
         mask = logical(spm_read_vols(SPM.VM));
@@ -72,10 +61,10 @@ if isfield(SPM, 'VM')
         VM = spm_vol([dirName SPM.VM.fname]);
         mask = logical(spm_read_vols(VM));
     end
-    fprintf(' using brain mask from SPM.VM\n');
+    fprintf(' using analysis brain mask from SPM.VM\n');
 else
     mask = true(VY(1).dim);
-    fprintf(' no brain mask!\n')        % should not happen
+    fprintf(' no analysis brain mask!\n')        % should not happen
 end
 
 % possibly apply region mask
@@ -88,7 +77,6 @@ if all(size(region) == size(mask))
 else
     error('region mask doesn''t match\n')
 end
-
 fprintf(' %d voxels\n', sum(mask(:)));
 
 % check memory
@@ -113,46 +101,49 @@ fprintf('  from %s\n', pattern)
 X = SPM.xX.X;
 
 % whiten data and design matrix
-if whiten
-    if isfield(SPM.xX, 'W')
-        fprintf(' whitening\n')
-        W = SPM.xX.W;
-        Y = W * Y;
-        X = W * X;
-    else
-        fprintf(' * SPM.mat does not define whitening matrix!\n')
-    end
+if isfield(SPM.xX, 'W')
+    fprintf(' whitening\n')
+    W = SPM.xX.W;
+    Y = W * Y;
+    X = W * X;
+else
+    fprintf(' * SPM.mat does not define whitening matrix!\n')
 end
 
 % high-pass filter data and design matrix
-if highpass
-    fprintf(' high-pass-filtering\n')
-    Y = spm_filter(SPM.xX.K, Y);
-    X = spm_filter(SPM.xX.K, X);
-end
+fprintf(' high-pass-filtering\n')
+Y = spm_filter(SPM.xX.K, Y);
+X = spm_filter(SPM.xX.K, X);
 
 % degrees of freedom
 Tdf = sum(SPM.nscan);                               % total
-if highpass                                         % loss from high-pass filter
-    Kdf = sum(arrayfun(@(x)(size(x.X0, 2)), SPM.xX.K));
-else
-    Kdf = 0;
-end
+Kdf = sum(arrayfun(@(x)(size(x.X0, 2)), SPM.xX.K)); % loss from filter
 Xdf = rank(X);                                      % loss from regressors
 Rdf = Tdf - Kdf - Xdf;                              % residual
-fprintf(' df: %d - %d - %d = %d\n', Tdf, Kdf, Xdf, Rdf);
+fprintf(' df: %d - %d - %d = %d', Tdf, Kdf, Xdf, Rdf);
+% other than SPM, we assume that whitening is perfect; for comparison
+fprintf('   [SPM: trRV = %g  erdf = %g]\n', SPM.xX.trRV, SPM.xX.erdf)
 
 % miscellaneous output
 misc.v2mm = VY(1).mat;                              % voxels to mm transformation
 misc.m = size(SPM.nscan, 2);                        % number of sessions
-misc.sRow = {SPM.Sess.row};                         % volumes for each session
-misc.sCol = {SPM.Sess.col};                         % regressors for each session
-for si = 1 : misc.m                                 % add constant regressors
+misc.sRow = {SPM.Sess.row};                         % scans of each session
+% regressors for each session
+% X has two parts, corresponding to SPM.xX.iC and SPM.xX.iB, each of
+% which is block diagonal.
+% The SPM.Sess.col for all sessions together are identical to
+% SPM.xX.iC, but do not include the constant regressors in SPM.xX.iB.
+misc.sCol = {SPM.Sess.col};
+for si = 1 : misc.m
+    % add constant regressors
     misc.sCol{si} = [misc.sCol{si}, SPM.xX.iB(si)];
-    % NOT SURE WHETHER THIS IS GENERALLY CORRECT
 end
-misc.fE = Rdf / misc.m;                             % if not consistent across sessions,
-misc.n = Tdf / misc.m;                              % then this is an approximation
+% number of scans and degrees of freedom per session
+% if not consistent across sessions, then this is an approximation
+misc.fE = Rdf / misc.m;
+misc.n = Tdf / misc.m;
+
+% rename "v2mm" to mat
 
 
 % This program is free software: you can redistribute it and/or modify it
