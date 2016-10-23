@@ -79,17 +79,6 @@ else
 end
 fprintf(' %d voxels\n', sum(mask(:)));
 
-% check memory
-% memory needed, assuming double precision
-memNeed = sum(mask(:)) * nImages * 8 / 1024 / 1024;
-% during whitening and filtering temporarily twice as much is needed
-memNeed = memNeed * 2;
-% available system memory
-memFree = systemFree / 1024;
-fprintf(' memory needed  %7.1f MiB\n', memNeed)
-fprintf('        free    %7.1f MiB\n', memFree)
-if memFree < memNeed, fprintf(2, 'not enough memory!\n'); end
-
 % read and mask data
 fprintf(' reading images\n')
 pattern = SPM.xY.P(1, :);
