@@ -1,17 +1,17 @@
 % test the implementation of 'cross-validated MANOVA'
 %
-% This script uses the data of one subject from Haxby et al. (2001), which
+% This script uses the data of subject 1 from Haxby et al. (2001), which
 % are downloaded automatically.
 % Source: http://dev.pymvpa.org/datadb/haxby2001.html
 %
-% This script can also be taken as an example for how to use the implementation.
+% It can also be taken as an example for how to use the implementation.
 %
 % With Matlab 8.5.0 (R2015a) and SPM12 r6685, this script
 % produces the following pattern distinctness values on a region:
 %   5.443, 4.421
 % and generates image files with the following MD5 checksums:
-%   ab032c7e07e3b3632879bdd768261df5  spmD_C0001_P0001.nii
-%   e2b9e2c9426df4a8ff224295205e4a98  spmD_C0002_P0001.nii
+%   bf96acecfe2499e19e141e3baaaaacc2  spmD_C0001_P0001.nii
+%   57be2e6a77f6d477ce25d62b168af77b  spmD_C0002_P0001.nii
 %
 %
 % Copyright (C) 2016 Carsten Allefeld
