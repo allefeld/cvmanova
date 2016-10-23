@@ -10,7 +10,7 @@ function [Y, X, mask, misc] = loadDataSPM(dirName, region)
 % X:        design matrix, scans x regressors
 % mask:     analysis brain mask, logical 3D volume; possibly combined with region mask
 % misc:     struct with additional data:
-%     v2mm  voxels to mm transformation matrix
+%     mat   voxels to mm transformation matrix
 %     sRow  rows for each session
 %     sCol  columns for each session
 %     m     number of sessions
@@ -125,7 +125,7 @@ fprintf(' df: %d - %d - %d = %d', Tdf, Kdf, Xdf, Rdf);
 fprintf('   [SPM: trRV = %g  erdf = %g]\n', SPM.xX.trRV, SPM.xX.erdf)
 
 % miscellaneous output
-misc.v2mm = VY(1).mat;                              % voxels to mm transformation
+misc.mat = VY(1).mat;                               % voxels to mm transformation
 misc.m = size(SPM.nscan, 2);                        % number of sessions
 misc.sRow = {SPM.Sess.row};                         % scans of each session
 % regressors for each session
@@ -142,8 +142,6 @@ end
 % if not consistent across sessions, then this is an approximation
 misc.fE = Rdf / misc.m;
 misc.n = Tdf / misc.m;
-
-% rename "v2mm" to mat
 
 
 % This program is free software: you can redistribute it and/or modify it
