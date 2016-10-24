@@ -1,21 +1,17 @@
-function [Y, X, mask, misc] = loadDataSPM(dirName, region)
+function [Ys, Xs, mask, misc] = loadDataSPM(dirName, region)
 
 % load fMRI data via SPM.mat
 %
-% [Y, X, mask, misc] = loadDataSPM(dirName, region = [])
+% [Ys, Xs, mask, misc] = loadDataSPM(dirName, region = [])
 %
 % dirName:  name of directory that contains SPM.mat
 % region:   optional additional region mask, logical 3D volume
-% Y:        MR data (within mask), scans x voxels
-% X:        design matrix, scans x regressors
+% Ys:       MR data (within mask) for each session, scans x voxels
+% Xs:       design matrix for each session, scans x regressors
 % mask:     analysis brain mask, logical 3D volume;
 %           possibly combined with region mask
 % misc:     struct with additional data:
 %     mat   voxels to mm transformation matrix
-%     sRow  rows for each session
-%     sCol  columns for each session
-%     m     number of sessions
-%     n     number of images per session
 %     fE    residual degrees of freedom per session
 %
 % Y & X and are high-pass filtered and whitened.
@@ -38,7 +34,6 @@ load(SPMname, 'SPM');
 
 % get data volumes and check matching voxel grid
 VY = SPM.xY.VY;
-nImages = numel(VY);
 spm_check_orientations(VY);
 
 % check whether data might have been moved
@@ -114,24 +109,24 @@ fprintf(' df: %d - %d - %d = %d', Tdf, Kdf, Xdf, Rdf);
 % other than SPM, we assume that whitening is perfect; for comparison
 fprintf('   [SPM: trRV = %g  erdf = %g]\n', SPM.xX.trRV, SPM.xX.erdf)
 
-% miscellaneous output
-misc.mat = VY(1).mat;                               % voxels to mm transformation
-misc.m = size(SPM.nscan, 2);                        % number of sessions
-misc.sRow = {SPM.Sess.row};                         % scans of each session
-% regressors for each session
-% X has two parts, corresponding to SPM.xX.iC and SPM.xX.iB, each of
-% which is block diagonal.
-% The SPM.Sess.col for all sessions together are identical to
-% SPM.xX.iC, but do not include the constant regressors in SPM.xX.iB.
-misc.sCol = {SPM.Sess.col};
-for si = 1 : misc.m
-    % add constant regressors
-    misc.sCol{si} = [misc.sCol{si}, SPM.xX.iB(si)];
+% separate Y and X into session blocks
+m = numel(SPM.nscan);
+Xs = cell(m, 1);
+Ys = cell(m, 1);
+for si = 1 : m
+    Ys{si} = Y(SPM.Sess(si).row, :);
+    % SPM.Sess(:).col does not include constant regressors,
+    % get those from SPM.xX.iB
+    Xs{si} = X(SPM.Sess(si).row, [SPM.Sess(si).col, SPM.xX.iB(si)]);
 end
-% number of scans and degrees of freedom per session
+clear Y X
+
+% miscellaneous output
+% voxels to mm transformation
+misc.mat = VY(1).mat;
+% degrees of freedom per session
 % if not consistent across sessions, then this is an approximation
-misc.fE = Rdf / misc.m;
-misc.n = Tdf / misc.m;
+misc.fE = Rdf / m;
 
 
 % This program is free software: you can redistribute it and/or modify it

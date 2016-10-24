@@ -1,16 +1,14 @@
 function D = cvManovaCore(vi, varargin)
 
-% move separation into runs into loadDataSPM
-% include here precompute, existing initialization, and bias correction
-
-% assumes whitened and filtered data and design matrices
-% misc.n from mean size(Ys, 1)
-
 % cvManovaCore([], Ys, Xs, Cs, fE, permute = false, lambda = 0);
 % D = cvManovaCore(vi, ...);
-
+%
+% assumes whitened and filtered data and design matrices
+% misc.n from mean size(Ys, 1)
+%
 % check consistent dimensions between Ys, Xs
 % check that Cs does not exceed minimum number of regressors
+% rank deficiency should not be error
 
 
 persistent m n betas xis XXs nContrasts CCs nPerms sp fE lambda
@@ -42,9 +40,9 @@ if isempty(vi)
         if size(Cs{ci}, 2) > rank(Cs{ci})
             error('contrast %d is misspecified!', ci)
         end
-        for ri = 1 : m
-            if inestimability(Cs{ci}, Xs{ri}) > 1e-6
-                error('contrast %d is not estimable in run %d!', ci, ri)
+        for si = 1 : m
+            if inestimability(Cs{ci}, Xs{si}) > 1e-6
+                error('contrast %d is not estimable in session %d!', ci, si)
             end
         end
     end
@@ -53,10 +51,10 @@ if isempty(vi)
     betas = cell(m, 1);
     xis = cell(m, 1);
     XXs = cell(m, 1);
-    for ri = 1 : m
-        betas{ri} = pinv(Xs{ri}) * Ys{ri};
-        xis{ri} = Ys{ri} - Xs{ri} * betas{ri};
-        XXs{ri} = Xs{ri}' * Xs{ri};
+    for si = 1 : m
+        betas{si} = pinv(Xs{si}) * Ys{si};
+        xis{si} = Ys{si} - Xs{si} * betas{si};
+        XXs{si} = Xs{si}' * Xs{si};
     end
     
     % prepare contrast projectors
@@ -82,7 +80,7 @@ end
 
 %% computation
 
-% precompute per-run E
+% precompute per-session E
 Es = cell(m, 1);
 for k = 1 : m
     x = xis{k}(:, vi);          % weirdly, this is faster than
@@ -112,13 +110,13 @@ for ci = 1 : nContrasts
     % number of regressors involved in contrast
     nConReg = size(CCs{ci}, 1);
     
-    % precompute per-run betaDelta
+    % precompute per-session betaDelta
     betaDelta = cell(m, 1);
     for k = 1 : m
         betaDelta{k} = CCs{ci} * betas{k}(1 : nConReg, vi);
     end
     
-    % precompute per-run H
+    % precompute per-session H
     Hs = cell(m, m);
     for k = 1 : m
         for l = 1 : m

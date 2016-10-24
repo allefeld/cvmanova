@@ -10,8 +10,8 @@
 % produces the following pattern distinctness values on a region:
 %   5.443427, 4.421474
 % and generates image files with the following MD5 checksums:
-%   bf96acecfe2499e19e141e3baaaaacc2  spmD_C0001_P0001.nii
-%   57be2e6a77f6d477ce25d62b168af77b  spmD_C0002_P0001.nii
+%   03adb4e589c9e1da8f08829c839b26d9  spmD_C0001_P0001.nii
+%   70b2d9cb8839b502578ab0f9c1ffbe55  spmD_C0002_P0001.nii
 %
 %
 % Copyright (C) 2016 Carsten Allefeld
@@ -62,13 +62,15 @@ fprintf('\ncvManovaRegion: D = %.6f, %.6f\n', D)
 fprintf('\ncvManovaSearchlight, MD5 checksums of results:\n')
 d = dir([modelDir filesep 'spmD_*.nii']);
 for l = 1 : numel(d)
-    fid = fopen([modelDir filesep d(l).name], 'rb');
-    bytes = fread(fid, 'uint8=>uint8');
-    fclose(fid);
+    % use only data
+    Y = spm_read_vols(spm_vol([modelDir filesep d(l).name]));
+    % use only most significant 15 bits and sign
+    Y = int16(round(Y(:) / max(abs(Y(:))) * 2^15));
+    % compute and print MD5
     md5Ins = java.security.MessageDigest.getInstance('MD5');
-    md5Str = lower(reshape(dec2hex(typecast(...
-        md5Ins.digest(bytes), 'uint8'))', 1, []));
-    fprintf('%s  %s\n', md5Str, d(l).name)
+    md5 = md5Ins.digest(typecast(Y, 'uint8'));
+    md5 = lower(reshape(dec2hex(typecast(md5, 'uint8'))', 1, []));
+    fprintf('%s  %s\n', md5, d(l).name)
 end
 fprintf('\nconsider deleting the directory %s and its contents\n', modelDir)
 

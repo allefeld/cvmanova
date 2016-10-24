@@ -37,26 +37,8 @@ if dirName(end) ~= filesep
     dirName = [dirName filesep];
 end
 
-% simplify saving images by changing to directory
-% *** do it further down!
-wd = cd;
-cd(dirName)
-% ensure change back on exit
-cleanupObj = onCleanup(@() cd(wd));     
-
 % load data, design matrix etc.
-[Y, X, mask, misc] = loadDataSPM(dirName);
-
-% determine per-run design and data matrices
-nRuns = misc.m;
-Xs = cell(nRuns, 1);
-Ys = cell(nRuns, 1);
-% for each run
-for ri = 1 : nRuns
-    Ys{ri} = Y(misc.sRow{ri}, :);
-    Xs{ri} = X(misc.sRow{ri}, misc.sCol{ri});
-end
-clear Y X
+[Ys, Xs, mask, misc] = loadDataSPM(dirName);
 
 % for checkpointing, compute unique ID that encodes parameters:
 %   SPM.mat & referenced data -> <timestamp of SPM.mat>,
@@ -65,7 +47,7 @@ clear Y X
 if ~exist('gencode.m', 'file')
     addpath([spm('dir') filesep 'matlabbatch'])
 end
-uid = gencode({['SPM.mat of ' getfield(dir('SPM.mat'), 'date')], ...
+uid = gencode({['SPM.mat of ' getfield(dir([dirName 'SPM.mat']), 'date')], ...
     slRadius, Cs, permute, lambda});
 uid = sprintf('%s\n', uid{:});
 % compute Fletcher-16 checksum
@@ -81,6 +63,11 @@ nContrasts = numel(Cs);
 nPerms = size(D, 2) / nContrasts;
 D = reshape(D, [], nContrasts, nPerms);
 
+% simplify saving results by changing to directory
+wd = cd(dirName);
+% ensure change back on exit
+cleanupObj = onCleanup(@() cd(wd));     
+
 % save results
 for ci = 1 : nContrasts
     for pi = 1 : nPerms
@@ -94,7 +81,7 @@ end
 spmWriteImage(reshape(p, size(mask)), 'VPSL.nii', misc.mat, ...
     'descrip', 'voxels per searchlight')
 
-% analysis parameters
+% save analysis parameters
 save cmsParameters.mat slRadius Cs permute misc nPerms
 
 

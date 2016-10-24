@@ -32,18 +32,7 @@ end
 if dirName(end) ~= filesep, dirName = [dirName filesep]; end
 
 % load data, design matrix etc.
-[Y, X, ~, misc] = loadDataSPM(dirName, region);
-
-% determine per-run design and data matrices
-nRuns = misc.m;
-Xs = cell(nRuns, 1);
-Ys = cell(nRuns, 1);
-% for each run
-for ri = 1 : nRuns
-    Ys{ri} = Y(misc.sRow{ri}, :);
-    Xs{ri} = X(misc.sRow{ri}, misc.sCol{ri});
-end
-clear Y X
+[Ys, Xs, ~, misc] = loadDataSPM(dirName, region);
 
 % compute on region
 fprintf('\ncomputing cross-validated MANOVA on region\n')
