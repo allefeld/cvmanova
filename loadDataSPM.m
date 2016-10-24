@@ -8,7 +8,8 @@ function [Y, X, mask, misc] = loadDataSPM(dirName, region)
 % region:   optional additional region mask, logical 3D volume
 % Y:        MR data (within mask), scans x voxels
 % X:        design matrix, scans x regressors
-% mask:     analysis brain mask, logical 3D volume; possibly combined with region mask
+% mask:     analysis brain mask, logical 3D volume;
+%           possibly combined with region mask
 % misc:     struct with additional data:
 %     mat   voxels to mm transformation matrix
 %     sRow  rows for each session

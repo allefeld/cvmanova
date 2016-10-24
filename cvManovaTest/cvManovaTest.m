@@ -8,7 +8,7 @@
 %
 % With Matlab 8.5.0 (R2015a) and SPM12 r6685, this script
 % produces the following pattern distinctness values on a region:
-%   5.443, 4.421
+%   5.443427, 4.421474
 % and generates image files with the following MD5 checksums:
 %   bf96acecfe2499e19e141e3baaaaacc2  spmD_C0001_P0001.nii
 %   57be2e6a77f6d477ce25d62b168af77b  spmD_C0002_P0001.nii
@@ -58,7 +58,7 @@ region = logical(spm_read_vols(spm_vol(fnRegion)));
 cvManovaSearchlight(modelDir, 3, Cs)
 
 % compute checksums of searchlight results
-fprintf('\ncvManovaRegion: D = %.3f, %.3f\n', D)
+fprintf('\ncvManovaRegion: D = %.6f, %.6f\n', D)
 fprintf('\ncvManovaSearchlight, MD5 checksums of results:\n')
 d = dir([modelDir filesep 'spmD_*.nii']);
 for l = 1 : numel(d)

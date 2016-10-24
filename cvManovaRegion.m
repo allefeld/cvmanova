@@ -27,63 +27,33 @@ end
 if nargin < 5
     permute = false;
 end
-
-nContrasts = numel(Cs);
+% *** sequence of parameters different between Region and Searchlight!
 
 if dirName(end) ~= filesep, dirName = [dirName filesep]; end
 
 % load data, design matrix etc.
-[Y, X, mask, misc] = loadDataSPM(dirName, region);
+[Y, X, ~, misc] = loadDataSPM(dirName, region);
 
 % determine per-run design and data matrices
 nRuns = misc.m;
-Xrun = cell(nRuns, 1);
-Yrun = cell(nRuns, 1);
+Xs = cell(nRuns, 1);
+Ys = cell(nRuns, 1);
 % for each run
 for ri = 1 : nRuns
-    Yrun{ri} = Y(misc.sRow{ri}, :);
-    Xrun{ri} = X(misc.sRow{ri}, misc.sCol{ri});
+    Ys{ri} = Y(misc.sRow{ri}, :);
+    Xs{ri} = X(misc.sRow{ri}, misc.sCol{ri});
 end
 clear Y X
 
-% check contrasts
-for ci = 1 : nContrasts
-    if size(Cs{ci}, 2) > rank(Cs{ci})
-        error('contrast %d is misspecified!', ci)
-    end
-    for ri = 1 : nRuns
-        if inestimability(Cs{ci}, Xrun{ri}) > 1e-6
-            error('contrast %d is not estimable in run %d!', ci, ri)
-        end
-    end
-end
-    
-% precomputation
-fprintf('\nprecomputing GLM runwise\n')
-[XXs, betas, xis] = cvManova_precompute(Xrun, Yrun);
-clear Xrun Yrun
-
-% estimate regularization parameter (undocumented experimental feature)
-if strcmp(lambda, 'estReg')
-    lambda = estReg(xis, misc.fE);
-end
-
-% bias correction factor
-p = sum(mask(:));
-factor = ((misc.m - 1) * misc.fE - p - 1) / ((misc.m - 1) * misc.n);
-
 % compute on region
 fprintf('\ncomputing cross-validated MANOVA on region\n')
-cvManova_compute(nan(0, 1), XXs, betas, xis, Cs, permute, lambda);
-mDl = cvManova_compute(1 : p, XXs, betas, xis, Cs, permute, lambda);
+cvManovaCore(nan(0, 1), Ys, Xs, Cs, misc.fE, permute, lambda);
+p = size(Ys{1}, 2);
+clear Ys Xs
+D = cvManovaCore(1 : p);
 
 % separate contrast and permutation dimensions
-nContrasts = numel(Cs);
-nPerms = numel(mDl) / nContrasts;
-mDl = reshape(mDl, nContrasts, nPerms);
-
-% compute the unbiased estimate of the pattern discriminability D
-D = factor * mDl;
+D = reshape(D, numel(Cs), []);
 
 
 % This program is free software: you can redistribute it and/or modify it

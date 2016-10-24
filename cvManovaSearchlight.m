@@ -31,7 +31,6 @@ if nargin < 5
     lambda = 0;
 end
 
-nContrasts = numel(Cs);
 outpattern = 'spmD_C%04d_P%04d.nii';
 
 if dirName(end) ~= filesep
@@ -39,6 +38,7 @@ if dirName(end) ~= filesep
 end
 
 % simplify saving images by changing to directory
+% *** do it further down!
 wd = cd;
 cd(dirName)
 % ensure change back on exit
@@ -49,51 +49,16 @@ cleanupObj = onCleanup(@() cd(wd));
 
 % determine per-run design and data matrices
 nRuns = misc.m;
-Xrun = cell(nRuns, 1);
-Yrun = cell(nRuns, 1);
+Xs = cell(nRuns, 1);
+Ys = cell(nRuns, 1);
 % for each run
 for ri = 1 : nRuns
-    Yrun{ri} = Y(misc.sRow{ri}, :);
-    Xrun{ri} = X(misc.sRow{ri}, misc.sCol{ri});
+    Ys{ri} = Y(misc.sRow{ri}, :);
+    Xs{ri} = X(misc.sRow{ri}, misc.sCol{ri});
 end
 clear Y X
 
-% check contrasts
-for ci = 1 : nContrasts
-    if size(Cs{ci}, 2) > rank(Cs{ci})
-        error('contrast %d is misspecified!', ci)
-    end
-    for ri = 1 : nRuns
-        if inestimability(Cs{ci}, Xrun{ri}) > 1e-6
-            error('contrast %d is not estimable in run %d!', ci, ri)
-        end
-    end
-end
-    
-% precomputation
-fprintf('\nprecomputing GLM runwise\n')
-[XXs, betas, xis] = cvManova_precompute(Xrun, Yrun);
-clear Xrun Yrun
-
-% determine voxels per searchlight, and save as image
-fprintf('\ncomputing voxels per searchlight image\n')
-p = runSearchlight([], slRadius, mask, @(vi)(size(vi, 1)));
-spmWriteImage(reshape(p, size(mask)), 'VPSL.nii', misc.mat, ...
-    'descrip', 'voxels per searchlight')
-    
-% error check
-if lambda == 0
-    pMax = max(p(:));
-    if pMax > 0.9 * (misc.m - 1) * misc.fE
-        error('insufficient amount of data for searchlight size %d!', pMax)
-    end
-end
-
-% bias correction factor
-factor = ((misc.m - 1) * misc.fE - p - 1) / ((misc.m - 1) * misc.n);
-clear p
-
-% compute unique ID that encodes parameters:
+% for checkpointing, compute unique ID that encodes parameters:
 %   SPM.mat & referenced data -> <timestamp of SPM.mat>,
 %   slRadius, Cs, permute, lambda
 % encode as string
@@ -108,17 +73,13 @@ uid = dec2hex(fletcher16(uid), 4);
 
 % run searchlight
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
-mDl = runSearchlight(['cmsCheckpoint' uid '.mat'], slRadius, mask, ...
-    @cvManova_compute, XXs, betas, xis, Cs, permute, lambda);
+[D, p] = runSearchlight(['cmsCheckpoint' uid '.mat'], slRadius, mask, ...
+    @cvManovaCore, Ys, Xs, Cs, misc.fE, permute, lambda);
  
 % separate contrast and permutation dimensions
 nContrasts = numel(Cs);
-nPerms = size(mDl, 2) / nContrasts;
-mDl = reshape(mDl, [], nContrasts, nPerms);
-
-% compute the unbiased estimate of the pattern discriminability D
-D = bsxfun(@times, factor, mDl);
-clear mDl
+nPerms = size(D, 2) / nContrasts;
+D = reshape(D, [], nContrasts, nPerms);
 
 % save results
 for ci = 1 : nContrasts
@@ -128,6 +89,10 @@ for ci = 1 : nContrasts
             'descrip', 'pattern discriminability')
     end
 end
+
+% save voxels per searchlight as image
+spmWriteImage(reshape(p, size(mask)), 'VPSL.nii', misc.mat, ...
+    'descrip', 'voxels per searchlight')
 
 % analysis parameters
 save cmsParameters.mat slRadius Cs permute misc nPerms

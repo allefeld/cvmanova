@@ -1,4 +1,4 @@
-function res = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
+function [res, p] = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
 
 % general purpose searchlight:
 % apply function to data contained in a sliding spherical window
@@ -10,7 +10,8 @@ function res = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
 % mask:         3-dimensional logical array indicating which voxels to use
 % fun:          function to call with voxel indices within window
 % ...:          additional arguments are passed through to the function
-% res:      results, 2-dimensional matrix, voxels x output values
+% res:          results, 2-dimensional matrix, voxels x output values
+% p:            number of voxels in each searchlight, column vector
 %
 % The function has to be of the form r = fun(mvi, ...)
 % mvi:      column vector of linear indices into the mask voxels
@@ -68,6 +69,7 @@ vvi2mvi(mask) = 1 : nMaskVoxels;
 % initialize result volume(s)
 res = fun(nan(0, 1), varargin{:});
 res = repmat(reshape(res, 1, []), nVolumeVoxels, 1);
+p = nan(nVolumeVoxels, 1);
 
 fprintf(' running searchlight\n')
 fprintf('  searchlight size: %d\n', size(di, 1))
@@ -106,6 +108,7 @@ while cvvi < nVolumeVoxels
         
         % call function and store output
         res(cvvi, :) = fun(mvi, varargin{:});
+        p(cvvi) = numel(mvi);
     end
     
     nt = toc;
