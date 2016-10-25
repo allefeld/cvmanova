@@ -64,11 +64,24 @@ if isempty(vi)
     end
     m = numel(Ys);
     n = mean(cellfun(@(x) size(x, 1), Ys));
+    nContrasts = numel(Cs);
+
+    
+    % check input
+    if ~isequal(cellfun(@(x) size(x, 1), Ys), cellfun(@(x) size(x, 1), Xs))
+        error('inconsistent number of scans between data and design!')
+    end
+    if any(diff(cellfun(@(x) size(x, 2), Ys)) ~= 0)
+        error('inconsistent number of voxels within data!')
+    end
 
     % check contrasts
+    qMin = min(cellfun(@(x) size(x, 2), Xs));
     for ci = 1 : nContrasts
-        if size(Cs{ci}, 2) > rank(Cs{ci})
-            error('contrast %d is misspecified!', ci)
+        qC = find(all(Cs{ci} == 0, 2) == false, 1, 'last');
+        Cs{ci} = Cs{ci}(1 : qC, :); % trim trailing all-zero rows
+        if qC > qMin
+            error('contrast %d exceeds the %d common regressors!', ci, qMin)
         end
         for si = 1 : m
             if inestimability(Cs{ci}, Xs{si}) > 1e-6
@@ -88,7 +101,6 @@ if isempty(vi)
     end
     
     % prepare contrast projectors
-    nContrasts = numel(Cs);
     CCs = cell(nContrasts, 1);
     for ci = 1 : nContrasts
         CCs{ci} = pinv(Cs{ci}') * Cs{ci}';
@@ -138,12 +150,12 @@ D = zeros(nContrasts, nPerms);
 % for each contrast
 for ci = 1 : nContrasts
     % number of regressors involved in contrast
-    nConReg = size(CCs{ci}, 1);
+    qCC = size(CCs{ci}, 1);
     
     % precompute per-session betaDelta
     betaDelta = cell(m, 1);
     for k = 1 : m
-        betaDelta{k} = CCs{ci} * betas{k}(1 : nConReg, vi);
+        betaDelta{k} = CCs{ci} * betas{k}(1 : qCC, vi);
     end
     
     % precompute per-session H
@@ -152,7 +164,7 @@ for ci = 1 : nContrasts
         for l = 1 : m
             if l == k, continue, end
             
-            Hs{k, l} = betaDelta{k}' * XXs{l}(1 : nConReg, 1 : nConReg) * betaDelta{l};
+            Hs{k, l} = betaDelta{k}' * XXs{l}(1 : qCC, 1 : qCC) * betaDelta{l};
         end
     end
     clear betaDelta
