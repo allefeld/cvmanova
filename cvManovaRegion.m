@@ -1,8 +1,8 @@
-function [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
+function [D, p] = cvManovaRegion(dirName, region, Cs, permute, lambda)
 
 % cross-validated MANOVA on region
 %
-% [D, p] = cvManovaRegion(dirName, region, Cs, lambda = 0, permute = false)
+% [D, p] = cvManovaRegion(dirName, region, Cs, permute = false, lambda = 0)
 %
 % dirName:  directory where the SPM.mat file referring to an estimated
 %           model is located
@@ -22,12 +22,14 @@ function [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
 fprintf('\n\ncvManovaRegion\n\n')
 
 if nargin < 4
-    lambda = 0;
-end    
-if nargin < 5
     permute = false;
 end
-% *** sequence of parameters different between Region and Searchlight!
+if nargin < 5
+    lambda = 0;
+end    
+if islogical(lambda)
+    error('incorrect order of parameters?')
+end
 
 if dirName(end) ~= filesep
     dirName = [dirName filesep];
