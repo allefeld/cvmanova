@@ -12,13 +12,10 @@
 % and generates image files with the following MD5 checksums:
 %   03adb4e589c9e1da8f08829c839b26d9  spmD_C0001_P0001.nii
 %   70b2d9cb8839b502578ab0f9c1ffbe55  spmD_C0002_P0001.nii
-%
-%
-% Copyright (C) 2016 Carsten Allefeld
 
 clear
 
-% select subject; 6 is missing anatomy, 5 has corrupted data
+% select subject
 sub = 'subj1';
 fprintf('analyzing data of %s from Haxby et al. (2001)\n', sub)
 
@@ -73,12 +70,3 @@ for l = 1 : numel(d)
     fprintf('%s  %s\n', md5, d(l).name)
 end
 fprintf('\nconsider deleting the directory %s and its contents\n', modelDir)
-
-
-% This program is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version. This program is distributed in the hope that
-% it will be useful, but without any warranty; without even the implied
-% warranty of merchantability or fitness for a particular purpose. See the
-% GNU General Public License <http://www.gnu.org/licenses/> for more details.

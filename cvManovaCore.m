@@ -1,11 +1,41 @@
 function D = cvManovaCore(vi, varargin)
 
+% cross-validated MANOVA
+% core implementation of the method proposed by Allefeld and Haynes (2014)
+%
 % cvManovaCore([], Ys, Xs, Cs, fE, permute = false, lambda = 0);
+%
+% Ys:       cell array of per-session data matrices
+% Xs:       cell array of per-session design matrices
+% Cs:       cell array of contrast vectors or matrices
+% fE:       error degrees of freedom
+% permute:  whether to compute permutation values
+% lambda:   regularization parameter (0–1)
+%
 % D = cvManovaCore(vi, ...);
 %
-% assumes whitened and filtered data and design matrices
-% misc.n from mean size(Ys, 1)
+% vi:       voxels, indices into columns of Ys{:}
+% D:        pattern distinctness, contrasts × permutations as a row vector
 %
+% The function has two call syntaxes. The first form initializes internal
+% (persistent) variables based on the parameters, and has to be used once
+% for each data set to be analyzed. The second form performs the actual
+% analysis on the specified voxels, and can be repeated for each set of
+% voxels of interest. This two-step approach provides improved performance
+% for searchlight analysis. To release the memory occupied by the internal
+% variables, use 'clear cvManovaCore'.
+%
+% It is assumed that the data and design matrices have been whitened and
+% possibly filtered. fE is the residual number of degrees of freedom,
+% i.e. the number of scans per session minus the rank of the design matrix
+% and minus further loss of dfs due to filtering. If this number varies
+% across sessions, use its mean.
+%
+% See also cvManovaSearchlight, cvManovaRegion
+%
+%
+% Copyright (C) 2016 Carsten Allefeld
+
 % check consistent dimensions between Ys, Xs
 % check that Cs does not exceed minimum number of regressors
 % rank deficiency should not be error
@@ -72,7 +102,7 @@ if isempty(vi)
     end
     sp = sp(:, 1 : nPerms);
     
-    % answer initialization call
+    % answer initialization call by runSearchlight
     D = nan(1, nContrasts * nPerms);
     return
 end
@@ -165,4 +195,3 @@ D = reshape(D, 1, []);
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
-

@@ -7,16 +7,16 @@ function [D, p] = cvManovaRegion(dirName, region, Cs, lambda, permute)
 % dirName:  directory where the SPM.mat file referring to an estimated
 %           model is located
 % region:   region mask, logical 3d-volume
-% Cs:       cell array of contrast matrices
+% Cs:       cell array of contrast vectors or matrices
 % lambda:   regularization parameter (0–1)
-% permute:  whether to compute permutation values of the test statistic
+% permute:  whether to compute permutation values
 % D:        pattern distinctness, contrasts x permutations
 % p:        number of voxels in the region
 %
-% If region is [], all in-mask voxels are used.
+% If region is [], all voxels within the analysis brain mask are used.
 %
 %
-% Copyright (C) 2015 Carsten Allefeld
+% Copyright (C) 2015-2016 Carsten Allefeld
 
 
 fprintf('\n\ncvManovaRegion\n\n')
@@ -40,6 +40,7 @@ cvManovaCore(nan(0, 1), Ys, Xs, Cs, misc.fE, permute, lambda);
 p = size(Ys{1}, 2);
 clear Ys Xs
 D = cvManovaCore(1 : p);
+clear cvManovaCore          % free memory of persistent variables
 
 % separate contrast and permutation dimensions
 D = reshape(D, numel(Cs), []);
@@ -52,4 +53,3 @@ D = reshape(D, numel(Cs), []);
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
-

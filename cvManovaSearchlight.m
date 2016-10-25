@@ -4,19 +4,18 @@ function cvManovaSearchlight(dirName, slRadius, Cs, permute, lambda)
 %
 % cvManovaSearchlight(dirName, slRadius, Cs, permute = false, lambda = 0)
 %
-% dirName:  directory where the SPM.mat file referring to an estimated
-%           model is located
-% slRadius: radius of the searchlight sphere, in voxels
-% Cs:       cell array of contrast matrices
-% permute:  whether to compute permutation values of the test statistic
-% lambda:   regularization parameter (0–1)
+% dirName:   directory where the SPM.mat file referring to an estimated
+%            model is located
+% slRadius:  radius of the searchlight sphere, in voxels
+% Cs:        cell array of contrast vectors or matrices
+% permute:   whether to compute permutation values
+% lambda:    regularization parameter (0–1)
 %
 % Output files are written to the same directory:
-% spmD_C####_P####.nii:
-%           images of the pattern discriminability D
-%           contrast and permutation are identified by numbers
-% VPSL.img  an image of the number of voxels within each searchlight
-% cms.mat   a record of the analysis parameters
+% spmD_C####_P####.nii:  images of the pattern discriminability D
+%                        contrast and permutation are identified by numbers
+% VPSL.nii:              image of the number of voxels for each searchlight
+% cmsParameters.mat:     record of the analysis parameters
 %
 %
 % Copyright (C) 2013-2016 Carsten Allefeld
@@ -57,6 +56,7 @@ uid = dec2hex(fletcher16(uid), 4);
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
 [D, p] = runSearchlight(['cmsCheckpoint' uid '.mat'], slRadius, mask, ...
     @cvManovaCore, Ys, Xs, Cs, misc.fE, permute, lambda);
+clear cvManovaCore          % free memory of persistent variables
  
 % separate contrast and permutation dimensions
 nContrasts = numel(Cs);
