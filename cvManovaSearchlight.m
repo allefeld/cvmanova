@@ -60,9 +60,9 @@ uid = dec2hex(fletcher16(uid), 4);
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
 [D, p] = runSearchlight(['cmsCheckpoint' uid '.mat'], slRadius, mask, ...
     @cvManovaCore, Ys, Xs, Cs, misc.fE, permute, lambda);
-clear cvManovaCore          % free memory of persistent variables
+clear Xs Ys cvManovaCore    % free memory
  
-% separate contrast and permutation dimensions
+% separate contrast and permutation dimensions of result
 nContrasts = numel(Cs);
 nPerms = size(D, 2) / nContrasts;
 D = reshape(D, [], nContrasts, nPerms);

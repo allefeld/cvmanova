@@ -29,7 +29,9 @@ if nargin < 5
 end
 % *** sequence of parameters different between Region and Searchlight!
 
-if dirName(end) ~= filesep, dirName = [dirName filesep]; end
+if dirName(end) ~= filesep
+    dirName = [dirName filesep];
+end
 
 % load data, design matrix etc.
 [Ys, Xs, ~, misc] = loadDataSPM(dirName, region);
@@ -40,9 +42,9 @@ cvManovaCore(nan(0, 1), Ys, Xs, Cs, misc.fE, permute, lambda);
 p = size(Ys{1}, 2);
 clear Ys Xs
 D = cvManovaCore(1 : p);
-clear cvManovaCore          % free memory of persistent variables
+clear cvManovaCore          % free memory
 
-% separate contrast and permutation dimensions
+% separate contrast and permutation dimensions of result
 D = reshape(D, numel(Cs), []);
 
 
