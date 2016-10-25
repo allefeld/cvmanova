@@ -14,6 +14,7 @@ function cvManovaSearchlight(dirName, slRadius, Cs, permute, lambda)
 % Output files are written to the same directory:
 % spmD_C####_P####.nii:  images of the pattern discriminability D
 %                        contrast and permutation are identified by numbers
+% spmD_C####_P####.nii:  images of standardized pattern discriminability D_s
 % VPSL.nii:              image of the number of voxels for each searchlight
 % cmsParameters.mat:     record of the analysis parameters
 %
@@ -30,11 +31,14 @@ if nargin < 5
     lambda = 0;
 end
 
-outpattern = 'spmD_C%04d_P%04d.nii';
-
 if dirName(end) ~= filesep
     dirName = [dirName filesep];
 end
+
+% simplify things by changing to directory
+wd = cd(dirName);
+% ensure change back on exit
+cleanupObj = onCleanup(@() cd(wd));     
 
 % load data, design matrix etc.
 [Ys, Xs, mask, misc] = loadDataSPM(dirName);
@@ -46,7 +50,7 @@ end
 if ~exist('gencode.m', 'file')
     addpath([spm('dir') filesep 'matlabbatch'])
 end
-uid = gencode({['SPM.mat of ' getfield(dir([dirName 'SPM.mat']), 'date')], ...
+uid = gencode({['SPM.mat of ' getfield(dir('SPM.mat'), 'date')], ...
     slRadius, Cs, permute, lambda});
 uid = sprintf('%s\n', uid{:});
 % compute Fletcher-16 checksum
@@ -63,17 +67,15 @@ nContrasts = numel(Cs);
 nPerms = size(D, 2) / nContrasts;
 D = reshape(D, [], nContrasts, nPerms);
 
-% simplify saving results by changing to directory
-wd = cd(dirName);
-% ensure change back on exit
-cleanupObj = onCleanup(@() cd(wd));     
-
 % save results
 for ci = 1 : nContrasts
     for pi = 1 : nPerms
-        fn = sprintf(outpattern, ci, pi);
-        spmWriteImage(reshape(D(:, ci, pi), size(mask)), fn, misc.mat, ...
-            'descrip', 'pattern discriminability')
+        spmWriteImage(reshape(D(:, ci, pi), size(mask)), ...
+            sprintf('spmD_C%04d_P%04d.nii', ci, pi), ...
+            misc.mat, 'descrip', 'pattern discriminability')
+        spmWriteImage(reshape(D(:, ci, pi) ./ sqrt(p), size(mask)), ...
+            sprintf('spmDs_C%04d_P%04d.nii', ci, pi), ...
+            misc.mat, 'descrip', 'standardized pattern discriminability')
     end
 end
 
@@ -92,4 +94,3 @@ save cmsParameters.mat slRadius Cs permute misc nPerms
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
-
