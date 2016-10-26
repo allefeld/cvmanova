@@ -7,11 +7,19 @@
 % It can also be taken as an example for how to use the implementation.
 %
 % With Matlab 8.5.0 (R2015a) and SPM12 r6685, this script
-% produces the following pattern distinctness values on a region:
-%   5.443427, 4.421474
-% and generates image files with the following MD5 checksums:
+% produces the following pattern distinctness values on regions:
+%   region 1, contrast 1:  D = 5.443427
+%   region 1, contrast 2:  D = 1.021870
+%   region 2, contrast 1:  D = 0.314915
+%   region 2, contrast 2:  D = 0.021717
+%   region 3, contrast 1:  D = 1.711423
+%   region 3, contrast 2:  D = 0.241187
+% and generates images with the following checksums:
 %   03adb4e589c9e1da8f08829c839b26d9  spmD_C0001_P0001.nii
-%   70b2d9cb8839b502578ab0f9c1ffbe55  spmD_C0002_P0001.nii
+%   7a8f0d5918363c213e0d749a1bfdd665  spmD_C0002_P0001.nii
+%   8bfe2b4261920127b2fcf5fe5358a340  spmDs_C0001_P0001.nii
+%   e7d2c583c5159feb671dea7ff2b72570  spmDs_C0002_P0001.nii
+
 
 clear
 
@@ -29,7 +37,7 @@ cvManovaTest_preprocess
 cvManovaTest_model
 
 % set up contrasts
-% notice the transpose operators!
+% conditions: face, house, cat, bottle, scissors, shoe, chair, scrambledpix
 Cs = {};
 % 1) main effect of stimulus
 Cs{1} = [ 1 -1  0  0  0  0  0  0
@@ -39,27 +47,33 @@ Cs{1} = [ 1 -1  0  0  0  0  0  0
           0  0  0  0  1 -1  0  0
           0  0  0  0  0  1 -1  0
           0  0  0  0  0  0  1 -1]';
-% 2) main effect, meaningful stimuli only
-Cs{2} = [ 1 -1  0  0  0  0  0  0
-          0  1 -1  0  0  0  0  0
-          0  0  1 -1  0  0  0  0
-          0  0  0  1 -1  0  0  0
+% 2) main effect of category within object
+Cs{2} = [ 0  0  0  1 -1  0  0  0
           0  0  0  0  1 -1  0  0
           0  0  0  0  0  1 -1  0]';
+% notice the transpose operators!
 
 % run cvMANOVA on region
-region = logical(spm_read_vols(spm_vol(fnRegion)));
-[D, p] = cvManovaRegion(modelDir, region, Cs);
+regions = {};
+for i = 1 : numel(fnRegions)
+    regions{i} = logical(spm_read_vols(spm_vol(fnRegions{i})));             %#ok<SAGROW>
+end
+[D, p] = cvManovaRegion(modelDir, regions, Cs);
 
 % run cvMANOVA on searchlight of radius 3
 cvManovaSearchlight(modelDir, 3, Cs)
 
 % compute checksums of searchlight results
-fprintf('\ncvManovaRegion: D = %.6f, %.6f\n', D)
+fprintf('\ncvManovaRegion:\n')
+for i = 1 : size(D, 3)
+    for j = 1 : size(D, 1)
+        fprintf('  region %d, contrast %d:  D = %.6f\n', i, j, D(j, 1, i))
+    end
+end
 fprintf('\ncvManovaSearchlight, MD5 checksums of results:\n')
-d = dir([modelDir filesep 'spmD_*.nii']);
+d = dir([modelDir filesep 'spmD*.nii']);
 for l = 1 : numel(d)
-    % use only data
+    % use only image data
     Y = spm_read_vols(spm_vol([modelDir filesep d(l).name]));
     % use only most significant 15 bits and sign
     Y = int16(round(Y(:) / max(abs(Y(:))) * 2^15));
@@ -67,6 +81,6 @@ for l = 1 : numel(d)
     md5Ins = java.security.MessageDigest.getInstance('MD5');
     md5 = md5Ins.digest(typecast(Y, 'uint8'));
     md5 = lower(reshape(dec2hex(typecast(md5, 'uint8'))', 1, []));
-    fprintf('%s  %s\n', md5, d(l).name)
+    fprintf('  %s  %s\n', md5, d(l).name)
 end
 fprintf('\nconsider deleting the directory %s and its contents\n', modelDir)

@@ -76,9 +76,13 @@ if ~exist(fnDesign, 'file')
 end
 
 % make sure gunzipped region mask data are there
-fnRegion = [sub filesep 'mask4_vt.nii'];
-if ~exist(fnRegion, 'file')
-    fprintf('unpacking %s.gz\n', fnRegion)
-    gunzip([fnRegion '.gz'])
-    delete([fnRegion '.gz'])
+fnRegions = {[sub filesep 'mask4_vt.nii'], ...
+             [sub filesep 'mask8_face_vt.nii'], ...
+             [sub filesep 'mask8_house_vt.nii']};
+for i = 1 : numel(fnRegions)
+    if ~exist(fnRegions{i}, 'file')
+        fprintf('unpacking %s.gz\n', fnRegions{i})
+        gunzip([fnRegions{i} '.gz'])
+        delete([fnRegions{i} '.gz'])
+    end
 end
