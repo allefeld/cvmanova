@@ -1,19 +1,17 @@
-function [D, p] = cvManovaRegion(dirName, region, Cs, permute, lambda)
+function [D, p] = cvManovaRegion(dirName, regions, Cs, permute, lambda)
 
 % cross-validated MANOVA on region
 %
-% [D, p] = cvManovaRegion(dirName, region, Cs, permute = false, lambda = 0)
+% [D, p] = cvManovaRegion(dirName, regions, Cs, permute = false, lambda = 0)
 %
 % dirName:  directory where the SPM.mat file referring to an estimated
 %           model is located
-% region:   region mask, logical 3d-volume
+% regions:  region mask(s), (cell array of) logical 3D volume(s)
 % Cs:       cell array of contrast vectors or matrices
 % lambda:   regularization parameter (0–1)
 % permute:  whether to compute permutation values
-% D:        pattern distinctness, contrasts x permutations
-% p:        number of voxels in the region
-%
-% If region is [], all voxels within the analysis brain mask are used.
+% D:        pattern distinctness, contrasts × permutations × regions
+% p:        number of voxels in the region(s)
 %
 %
 % Copyright (C) 2015-2016 Carsten Allefeld
@@ -30,24 +28,31 @@ end
 if islogical(lambda)
     error('incorrect order of parameters?')
 end
+if isempty(regions)
+    error('no region mask specified!')
+end
 
 if dirName(end) ~= filesep
     dirName = [dirName filesep];
 end
 
 % load data, design matrix etc.
-[Ys, Xs, ~, misc] = loadDataSPM(dirName, region);
+[Ys, Xs, ~, misc] = loadDataSPM(dirName, regions);
+nRegions = numel(misc.rmvi);
 
-% compute on region
+% compute on regions
 fprintf('\ncomputing cross-validated MANOVA on region\n')
 cvManovaCore(nan(0, 1), Ys, Xs, Cs, misc.fE, permute, lambda);
-p = size(Ys{1}, 2);
 clear Ys Xs
-D = cvManovaCore(1 : p);
+D = [];
+for i = 1 : nRegions
+    D = cat(3, D, cvManovaCore(misc.rmvi{i}));
+end
+p = cellfun(@numel, misc.rmvi);
 clear cvManovaCore          % free memory
 
 % separate contrast and permutation dimensions of result
-D = reshape(D, numel(Cs), []);
+D = reshape(D, numel(Cs), [], nRegions);
 
 
 % This program is free software: you can redistribute it and/or modify it

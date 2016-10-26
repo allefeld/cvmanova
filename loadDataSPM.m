@@ -1,11 +1,12 @@
-function [Ys, Xs, mask, misc] = loadDataSPM(dirName, region)
+function [Ys, Xs, mask, misc] = loadDataSPM(dirName, regions)
 
 % load fMRI data via SPM.mat
 %
-% [Ys, Xs, mask, misc] = loadDataSPM(dirName, region = [])
+% [Ys, Xs, mask, misc] = loadDataSPM(dirName, regions = {})
 %
 % dirName:  name of directory that contains SPM.mat
-% region:   optional additional region mask, logical 3D volume
+% regions:  optional additional region mask(s),
+%           (cell array of) logical 3D volume(s)
 % Ys:       MR data (within mask) for each session, scans x voxels
 % Xs:       design matrix for each session, scans x regressors
 % mask:     analysis brain mask, logical 3D volume;
@@ -13,6 +14,7 @@ function [Ys, Xs, mask, misc] = loadDataSPM(dirName, region)
 % misc:     struct with additional data:
 %     mat   voxels to mm transformation matrix
 %     fE    residual degrees of freedom per session
+%     rmvi  cell array of mask voxel indices for each region
 %
 % Y & X and are high-pass filtered and whitened.
 % Y includes only those voxels selected through mask.
@@ -23,7 +25,7 @@ function [Ys, Xs, mask, misc] = loadDataSPM(dirName, region)
 
 % default argument values
 if nargin < 2
-    region = [];
+    regions = {};
 end
 
 % load SPM.mat
@@ -59,21 +61,38 @@ if isfield(SPM, 'VM')
     end
     fprintf(' using analysis brain mask from SPM.VM\n');
 else
-    mask = true(VY(1).dim);
-    fprintf(' no analysis brain mask!\n')        % should not happen
+    error(' no analysis brain mask!')
 end
+fprintf(' %d in-mask voxels\n', sum(mask(:)));
 
-% possibly apply region mask
-if isempty(region)
-    region = true(size(mask));
-    fprintf(' no region mask!\n')
-end
-if all(size(region) == size(mask))
-    mask = mask & logical(region);
+% possibly apply region mask(s)
+if isempty(regions)
+    fprintf(' no region mask\n')
+    rmvi = {};
 else
-    error('region mask doesn''t match\n')
+    if ~iscell(regions)
+        regions = {regions};
+    end
+    nRegions = numel(regions);
+    try
+        regions = logical(cat(4, regions{:}));
+    catch
+        error('region masks don''t match!')
+    end
+    if ~isequal(size(regions(:, :, :, 1)), size(mask))
+        error('region masks don''t match!')
+    end
+    % restrict brain mask to conjunction of regions
+    mask = mask & any(regions, 4);
+    % determine mask voxel indices for each region
+    regions = reshape(regions, [], nRegions);
+    rmvi = cell(nRegions, 1);
+    for i = 1 : nRegions
+        rmvi{i} = find(regions(mask(:), i));
+        fprintf('  %d in-mask voxels in region %d\n', numel(rmvi{i}), i)
+    end
+    fprintf(' %d in-mask voxels in regions\n', sum(mask(:)));
 end
-fprintf(' %d voxels\n', sum(mask(:)));
 
 % read and mask data
 fprintf(' reading images\n')
@@ -127,6 +146,8 @@ misc.mat = VY(1).mat;
 % degrees of freedom per session
 % if not consistent across sessions, then this is an approximation
 misc.fE = Rdf / m;
+% mask voxel indices for each region
+misc.rmvi = rmvi;
 
 
 % This program is free software: you can redistribute it and/or modify it
