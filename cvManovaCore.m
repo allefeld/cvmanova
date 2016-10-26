@@ -68,25 +68,21 @@ if isempty(vi)
 
     
     % check input
-    if ~isequal(cellfun(@(x) size(x, 1), Ys), cellfun(@(x) size(x, 1), Xs))
-        error('inconsistent number of scans between data and design!')
-    end
-    if any(diff(cellfun(@(x) size(x, 2), Ys)) ~= 0)
-        error('inconsistent number of voxels within data!')
-    end
+    assert(isequal(cellfun(@(x) size(x, 1), Ys), cellfun(@(x) size(x, 1), Xs)), ...
+        'inconsistent number of scans between data and design!')
+    assert(all(diff(cellfun(@(x) size(x, 2), Ys)) == 0), ...
+        'inconsistent number of voxels within data!')
 
     % check contrasts
     qMin = min(cellfun(@(x) size(x, 2), Xs));
     for ci = 1 : nContrasts
         qC = find(all(Cs{ci} == 0, 2) == false, 1, 'last');
         Cs{ci} = Cs{ci}(1 : qC, :); % trim trailing all-zero rows
-        if qC > qMin
-            error('contrast %d exceeds the %d common regressors!', ci, qMin)
-        end
+        assert(qC <= qMin, ...
+            'contrast %d exceeds the %d common regressors!', ci, qMin)
         for si = 1 : m
-            if inestimability(Cs{ci}, Xs{si}) > 1e-6
-                error('contrast %d is not estimable in session %d!', ci, si)
-            end
+            assert(inestimability(Cs{ci}, Xs{si}) <= 1e-6, ...
+                'contrast %d is not estimable in session %d!', ci, si)
         end
     end
     

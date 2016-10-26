@@ -32,9 +32,7 @@ end
 data = double(data(:));
 sum1 = mod(sum(data), 255);
 sum2 = sum(cumsum(data));
-if sum2 >= 2^53
-    error('insufficient precision of implementation!')
-end
+assert(sum2 < 2^53, 'insufficient precision of implementation!')
 sum2 = mod(sum2, 255);
 checksum = sum2 * 256 + sum1;
 

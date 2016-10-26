@@ -51,17 +51,13 @@ if ~exist(VY(1).fname, 'file')
 end
 
 % read analysis brain mask image
-if isfield(SPM, 'VM')
-    try
-        mask = logical(spm_read_vols(SPM.VM));
-    catch
-        % SPM8 stores the filename without the path
-        VM = spm_vol([dirName SPM.VM.fname]);
-        mask = logical(spm_read_vols(VM));
-    end
-    fprintf(' using analysis brain mask from SPM.VM\n');
-else
-    error(' no analysis brain mask!')
+assert(isfield(SPM, 'VM'), ' no analysis brain mask in SPM.VM!')
+try
+    mask = logical(spm_read_vols(SPM.VM));
+catch
+    % SPM8 stores the filename without the path
+    VM = spm_vol([dirName SPM.VM.fname]);
+    mask = logical(spm_read_vols(VM));
 end
 fprintf(' %d in-mask voxels\n', sum(mask(:)));
 
@@ -79,9 +75,8 @@ else
     catch
         error('region masks don''t match!')
     end
-    if ~isequal(size(regions(:, :, :, 1)), size(mask))
-        error('region masks don''t match!')
-    end
+    assert(isequal(size(regions(:, :, :, 1)), size(mask)), ...
+        'region masks don''t match!')
     % restrict brain mask to conjunction of regions
     mask = mask & any(regions, 4);
     % determine mask voxel indices for each region

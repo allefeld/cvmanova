@@ -25,12 +25,8 @@ end
 if nargin < 5
     lambda = 0;
 end    
-if islogical(lambda)
-    error('incorrect order of parameters?')
-end
-if isempty(regions)
-    error('no region mask specified!')
-end
+assert(~islogical(lambda), 'incorrect order of parameters?')
+assert(~isempty(regions), 'no region mask specified!')
 
 if dirName(end) ~= filesep
     dirName = [dirName filesep];
