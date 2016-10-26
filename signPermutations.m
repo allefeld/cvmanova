@@ -2,20 +2,26 @@ function [perms, nPerms] = signPermutations(n, maxPerms)
 
 % generate sign permutations
 %
-% perms = signPermutations(n, maxPerms = 5000)
+% [perms, nPerms] = signPermutations(n, maxPerms = 5000)
+%
+% n:         number of data points
+% maxPerms:  maximum number of permutations
+% perms:     permutations, n × nPerms array of ±1
+% nPerms:    number of permutations
 %
 % Permutations are randomly selected if the full enumeration
-% is larger than maxPerms.
+% is larger than maxPerms. The first permutation is always the neutral
+% permutation, ones(n, 1).
 %
 %
-% Copyright (C) 2013 Carsten Allefeld
+% Copyright (C) 2013-2016 Carsten Allefeld
 
 
 if nargin < 2
-    maxPerms = 5000;    % adapted for z-values up to +-3
+    maxPerms = 5000;    % supports z-values of up to +-3
 end
 
-% determine permutations; first one is always the identity permutation
+% determine permutations; first one is always the neutral permutation
 if 2 ^ n <= maxPerms
     % full enumeration of permutations
     nPerms = 2 ^ n;
