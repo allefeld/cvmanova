@@ -63,7 +63,7 @@ if isempty(vi)
         lambda = 0;
     end
     m = numel(Ys);
-    n = mean(cellfun(@(x) size(x, 1), Ys));
+    n = cellfun(@(x) size(x, 1), Ys);
     nContrasts = numel(Cs);
 
     
@@ -142,6 +142,7 @@ end
 clear Es
 
 
+p = numel(vi);
 D = zeros(nContrasts, nPerms);
 % for each contrast
 for ci = 1 : nContrasts
@@ -182,15 +183,17 @@ for ci = 1 : nContrasts
             % fold-wise D
             Dl = sum(sum(Hl' .* iEls{l}));  % faster than trace(Hl * iEls{l})
             
+            % bias correction (fold-specific!)
+            Dl = (sum(fE(ks)) - p - 1) / sum(n(ks)) * Dl;
+            
             % sum across cross-validation folds
             D(ci, pi) = D(ci, pi) + Dl;
         end
     end
 end
 
-% mean across folds, bias correction
-p = numel(vi);
-D = ((m - 1) * fE - p - 1) / ((m - 1) * n) * D / m;
+% mean across folds
+D = D / m;
 
 % return row vector
 D = reshape(D, 1, []);

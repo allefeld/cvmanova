@@ -119,15 +119,6 @@ fprintf(' high-pass-filtering\n')
 Y = spm_filter(SPM.xX.K, Y);
 X = spm_filter(SPM.xX.K, X);
 
-% degrees of freedom
-Tdf = sum(SPM.nscan);                               % total
-Kdf = sum(arrayfun(@(x)(size(x.X0, 2)), SPM.xX.K)); % loss from filter
-Xdf = rank(X);                                      % loss from regressors
-Rdf = Tdf - Kdf - Xdf;                              % residual
-fprintf(' df: %d - %d - %d = %d', Tdf, Kdf, Xdf, Rdf);
-% other than SPM, we assume that whitening is perfect; for comparison
-fprintf('   [SPM: trRV = %g  erdf = %g]\n', SPM.xX.trRV, SPM.xX.erdf)
-
 % separate Y and X into session blocks
 m = numel(SPM.nscan);
 Xs = cell(m, 1);
@@ -140,12 +131,26 @@ for si = 1 : m
 end
 clear Y X
 
+% degrees of freedom for each session
+Tdf = nan(m, 1);
+Kdf = nan(m, 1);
+Xdf = nan(m, 1);
+Rdf = nan(m, 1);
+for si = 1 : m
+    Tdf(si) = SPM.nscan(si);                    % total
+    Kdf(si) = rank(SPM.xX.K(si).X0);            % loss from filter
+    Xdf(si) = rank(Xs{si});                     % loss from regressors
+    Rdf(si) = Tdf(si) - Kdf(si) - Xdf(si);      % residual
+end
+fprintf(' df: %d - %d - %d = %d', sum(Tdf), sum(Kdf), sum(Xdf), sum(Rdf));
+% other than SPM, we assume that whitening is perfect; for comparison
+fprintf('   [SPM: trRV = %g  erdf = %g]\n', SPM.xX.trRV, SPM.xX.erdf)
+
 % miscellaneous output
 % voxels to mm transformation
 misc.mat = VY(1).mat;
-% degrees of freedom per session
-% if not consistent across sessions, then this is an approximation
-misc.fE = Rdf / m;
+% residual degrees of freedom for each session
+misc.fE = Rdf;
 % mask voxel indices for each region
 misc.rmvi = rmvi;
 
