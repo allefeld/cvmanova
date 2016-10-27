@@ -53,12 +53,8 @@ Cs{2} = [ 0  0  0  1 -1  0  0  0
           0  0  0  0  0  1 -1  0]';
 % notice the transpose operators!
 
-% run cvMANOVA on region
-regions = {};
-for i = 1 : numel(fnRegions)
-    regions{i} = logical(spm_read_vols(spm_vol(fnRegions{i})));             %#ok<SAGROW>
-end
-[D, p] = cvManovaRegion(modelDir, regions, Cs);
+% run cvMANOVA on regions
+[D, p] = cvManovaRegion(modelDir, fnRegions, Cs);
 
 % run cvMANOVA on searchlight of radius 3
 cvManovaSearchlight(modelDir, 3, Cs)

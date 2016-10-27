@@ -6,7 +6,7 @@ function [Ys, Xs, mask, misc] = loadDataSPM(dirName, regions)
 %
 % dirName:  name of directory that contains SPM.mat
 % regions:  optional additional region mask(s),
-%           (cell array of) logical 3D volume(s)
+%           (cell array of) logical 3D volume(s) or filename(s)
 % Ys:       MR data (within mask) for each session, scans x voxels
 % Xs:       design matrix for each session, scans x regressors
 % mask:     analysis brain mask, logical 3D volume;
@@ -70,6 +70,11 @@ else
         regions = {regions};
     end
     nRegions = numel(regions);
+    for i = 1 : nRegions
+        if ~isnumeric(regions{i})
+            regions{i} = logical(spmReadVolMatched(regions{i}, VY(1)));
+        end
+    end
     try
         regions = logical(cat(4, regions{:}));
     catch

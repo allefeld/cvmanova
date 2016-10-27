@@ -6,7 +6,7 @@ function [D, p] = cvManovaRegion(dirName, regions, Cs, permute, lambda)
 %
 % dirName:  directory where the SPM.mat file referring to an estimated
 %           model is located
-% regions:  region mask(s), (cell array of) logical 3D volume(s)
+% regions:  region mask(s), (cell array of) logical 3D volume(s) or filename(s)
 % Cs:       cell array of contrast vectors or matrices
 % lambda:   regularization parameter (0–1)
 % permute:  whether to compute permutation values
