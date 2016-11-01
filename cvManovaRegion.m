@@ -40,12 +40,19 @@ nRegions = numel(misc.rmvi);
 fprintf('\ncomputing cross-validated MANOVA on region\n')
 cvManovaCore(nan(0, 1), Ys, Xs, Cs, misc.fE, permute, lambda);
 clear Ys Xs
+fEMin = sum(misc.fE) - max(misc.fE);
+p = cellfun(@numel, misc.rmvi);
 D = [];
 for i = 1 : nRegions
+    s = warning('off', 'MATLAB:nearlySingularMatrix');
     D = cat(3, D, cvManovaCore(misc.rmvi{i}));
+    warning(s.state, 'MATLAB:nearlySingularMatrix')
+    if p(i) > fEMin * 0.9   % ensures decent numerical precision
+        D(:, :, i) = nan;
+        fprintf(2, 'data insufficient for the %d voxels of region %d!\n', p(i), i);
+    end
 end
-p = cellfun(@numel, misc.rmvi);
-clear cvManovaCore          % free memory
+clear cvManovaCore          % clear memory
 
 % separate contrast and permutation dimensions of result
 D = reshape(D, numel(Cs), [], nRegions);

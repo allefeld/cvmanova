@@ -8,7 +8,7 @@ function D = cvManovaCore(vi, varargin)
 % Ys:       cell array of per-session data matrices
 % Xs:       cell array of per-session design matrices
 % Cs:       cell array of contrast vectors or matrices
-% fE:       error degrees of freedom
+% fE:       per-session error degrees of freedom
 % permute:  whether to compute permutation values
 % lambda:   regularization parameter (0–1)
 %
@@ -28,17 +28,12 @@ function D = cvManovaCore(vi, varargin)
 % It is assumed that the data and design matrices have been whitened and
 % possibly filtered. fE is the residual number of degrees of freedom,
 % i.e. the number of scans per session minus the rank of the design matrix
-% and minus further loss of dfs due to filtering. If this number varies
-% across sessions, use its mean.
+% and minus further loss of dfs due to filtering.
 %
 % See also cvManovaSearchlight, cvManovaRegion
 %
 %
 % Copyright (C) 2016 Carsten Allefeld
-
-% check consistent dimensions between Ys, Xs
-% check that Cs does not exceed minimum number of regressors
-% rank deficiency should not be error
 
 
 persistent m n betas xis XXs nContrasts CCs nPerms sp fE lambda

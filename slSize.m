@@ -1,36 +1,47 @@
-function slSizes(rMax)
+function pMax = slSize(slRadius)
 
-% tabulate searchlight radii that lead to different searchlight sizes
+% searchlight size as a function of searchlight radius
+% 
+% single query:
+% pMax = slSize(slRadius)
+% slRadius:     searchlight radius
+% pMax:         searchlight size
 %
-% slSizes(rMax = 5)
-%
-% rMax: maximum radius
+% tabulate radii and sizes:
+% slSizes(slRadius = 5)
+% slRadius:     maximum searchlight radius
 %
 %
 % Copyright (C) 2016 Carsten Allefeld
 
 
 if nargin == 0
-    rMax = 5;
+    slRadius = 5;
 end
 
 % distances from center voxel on grid
-[dxi, dyi, dzi] = ndgrid(-ceil(rMax) : ceil(rMax));
+[dxi, dyi, dzi] = ndgrid(-ceil(slRadius) : ceil(slRadius));
 d = sqrt(dxi .^ 2 + dyi .^ 2 + dzi .^ 2);
 
-% occurring distances
-r = unique(d(d <= rMax));
+% single query
+if nargout > 0
+    pMax = nnz(d <= slRadius);
+    return
+end
 
-p = nan(size(r));
+% tabulate radii and sizes
+r = unique(d(d <= slRadius));
+pMax = nan(size(r));
 prec = 1 - floor(log10(min(diff(r))));      % necessary precision
 fprintf('slRadius  pMax\n--------  ----\n')
 for i = 1 : numel(r)
     % number of voxels within radius
-    p(i) = numel(find(d <= r(i)));
+    pMax(i) = nnz(d <= r(i));
     rd = ceil(r(i) * 10^prec) / 10^prec;    % round up
-    fprintf('  %-5g   % 4d\n', rd, p(i))
-    assert(numel(find(d <= rd)) == p(i))    % sufficient precision?
+    fprintf('  %-5g   % 4d\n', rd, pMax(i))
+    assert(numel(find(d <= rd)) == pMax(i)) % sufficient precision?
 end
+clear pMax
 
 
 % This program is free software: you can redistribute it and/or modify it
