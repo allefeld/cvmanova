@@ -1,6 +1,6 @@
 function ie = inestimability(C, X)
 
-% degree of inestimability of a contrast wrt a design matrix
+% degree of inestimability of a contrast w.r.t. a design matrix
 %
 % ie = inestimability(C, X)
 %
@@ -12,7 +12,10 @@ function ie = inestimability(C, X)
 % part. For a completely inestimable contrast, ie = 1.
 %
 %
-% Copyright (C) 2013 Carsten Allefeld
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
+%
+% Copyright (C) 2013–2016 Carsten Allefeld
 
 
 % maximum "0" observed so far: 4.79*eps
@@ -46,4 +49,3 @@ ie = norm(NX' * RC);
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
-

@@ -7,10 +7,13 @@ function checksum = fletcher16(data)
 % data:     data to be checksummed,
 %           array of integers in the range 0 to 255 (0xFF)
 % checksum: Fletcher-16 checksum,
-%           integer where each of the bytes is in the range 0 to 254 (0xFE)
+%           16-bit integer where each of the bytes is in the range 0 to 254 (0xFE)
 %
 % https://en.wikipedia.org/wiki/Fletcher%27s_checksum
 %
+%
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
 %
 % Copyright (C) 2016 Carsten Allefeld
 

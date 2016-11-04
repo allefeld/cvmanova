@@ -7,20 +7,25 @@ function [Ys, Xs, mask, misc] = loadDataSPM(dirName, regions)
 % dirName:  name of directory that contains SPM.mat
 % regions:  optional additional region mask(s),
 %           (cell array of) logical 3D volume(s) or filename(s)
-% Ys:       MR data (within mask) for each session, scans x voxels
-% Xs:       design matrix for each session, scans x regressors
+% Ys:       MR data (within mask), cell array with one element for each
+%           session, containing an array of size scans × voxels
+% Xs:       design matrix for each session, cell array with one element
+%           for each session, containing an array of size scans × regressors
 % mask:     analysis brain mask, logical 3D volume;
-%           possibly combined with region mask
+%           possibly combined with union of region masks
 % misc:     struct with additional data:
 %     mat   voxels to mm transformation matrix
-%     fE    residual degrees of freedom per session
+%     fE    residual degrees of freedom for each session
 %     rmvi  cell array of mask voxel indices for each region
 %
 % Y & X and are high-pass filtered and whitened.
 % Y includes only those voxels selected through mask.
 %
 %
-% Copyright (C) 2013-2016 Carsten Allefeld
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
+%
+% Copyright (C) 2013–2016 Carsten Allefeld
 
 
 % default argument values

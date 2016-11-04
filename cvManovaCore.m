@@ -33,6 +33,9 @@ function D = cvManovaCore(vi, varargin)
 % See also cvManovaSearchlight, cvManovaRegion
 %
 %
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
+%
 % Copyright (C) 2016 Carsten Allefeld
 
 

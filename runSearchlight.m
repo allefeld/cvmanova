@@ -6,11 +6,11 @@ function [res, p] = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
 % res = runSearchlight(checkpoint, slRadius, mask, fun, ...)
 %
 % checkpoint:   name of checkpoint file ([] to disable checkpointing)
-% slRadius:     radius of searchlight, in voxels
+% slRadius:     radius of searchlight in voxels
 % mask:         3-dimensional logical array indicating which voxels to use
 % fun:          function to call with voxel indices within window
 % ...:          additional arguments are passed through to the function
-% res:          results, 2-dimensional matrix, voxels x output values
+% res:          results, array of size voxels × output values
 % p:            number of voxels in each searchlight, column vector
 %
 % The function has to be of the form r = fun(mvi, ...)
@@ -21,17 +21,20 @@ function [res, p] = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
 %
 % A voxel is included in the searchlight if its distance from the center is
 % *smaller than or equal to* the radius. Note that fractional values are
-% possible. Run slSizes for a table of meaningful values and resulting
+% possible. Run slSize for a table of meaningful values and resulting
 % searchlight sizes
 %
 % Intermediate results are saved at regular intervals to the checkpoint
 % file, if given. On a subsequent run, if the checkpoint file exists, its
 % contents are loaded and the computation continues from that point. 
 %
-% See also slSizes
+% See also slSize
 %
 %
-% Copyright (C) 2013-2016 Carsten Allefeld
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
+%
+% Copyright (C) 2013–2016 Carsten Allefeld
 
 
 % normalize checkpoint file name, preserving emptiness

@@ -14,8 +14,11 @@ function [Y, mask] = spmReadVolsMasked(V, mask)
 % memory spikes and to gain speed. This is achieved by directly accessing
 % memory-mapped data via the volume structs' file_array object V.private.raw. 
 %
-% See also spmUnMask, spmReadMatched, spmCoords
+% See also spmUnMask, spmReadVolMatched, spmCoords
 %
+%
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
 %
 % Copyright (C) 2016 Carsten Allefeld
 

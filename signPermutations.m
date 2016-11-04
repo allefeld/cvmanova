@@ -14,7 +14,10 @@ function [perms, nPerms] = signPermutations(n, maxPerms)
 % permutation, ones(n, 1).
 %
 %
-% Copyright (C) 2013-2016 Carsten Allefeld
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
+%
+% Copyright (C) 2013–2016 Carsten Allefeld
 
 
 if nargin < 2
@@ -42,4 +45,3 @@ perms = (-1) .^ perms;    % permuted signs
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
-

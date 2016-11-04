@@ -26,8 +26,11 @@ function Y = spmReadVolMatched(V, Vtemplate, hold)
 % consistent. Only the fields mat (4 × 4 matrix) and dim (1 × 3 vector)
 % have to be present.
 %
-% See also spmCoords, spm_write_sn, spm_slice_vol
+% See also spm_write_sn, spm_slice_vol
 %
+%
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
 %
 % Copyright (C) 2016 Carsten Allefeld
 % adapted from spm_read_vols and John Ashburner's reslice.m, v1.42

@@ -14,7 +14,10 @@ function [cMatrix, cName] = contrasts(fLevel, fName)
 % contrasts are not orthonormalized!
 %
 %
-% Copyright (C) 2013 Carsten Allefeld
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
+%
+% Copyright (C) 2013–2016 Carsten Allefeld
 
 
 % number of factors
@@ -61,4 +64,3 @@ end
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
-

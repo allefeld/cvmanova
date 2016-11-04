@@ -6,20 +6,23 @@ function cvManovaSearchlight(dirName, slRadius, Cs, permute, lambda)
 %
 % dirName:   directory where the SPM.mat file referring to an estimated
 %            model is located
-% slRadius:  radius of the searchlight sphere, in voxels
+% slRadius:  radius of the searchlight sphere in voxels
 % Cs:        cell array of contrast vectors or matrices
 % permute:   whether to compute permutation values
 % lambda:    regularization parameter (0–1)
 %
 % Output files are written to the same directory:
-% spmD_C####_P####.nii:  images of the pattern discriminability D
-%                        contrast and permutation are identified by numbers
-% spmD_C####_P####.nii:  images of standardized pattern discriminability D_s
-% VPSL.nii:              image of the number of voxels for each searchlight
-% cmsParameters.mat:     record of the analysis parameters
+% spmD_C####_P####.nii:   images of the pattern discriminability D
+%                         contrast and permutation are identified by numbers
+% spmDs_C####_P####.nii:  images of standardized pattern discriminability D_s
+% VPSL.nii:               image of the number of voxels for each searchlight
+% cmsParameters.mat:      record of the analysis parameters
 %
 %
-% Copyright (C) 2013-2016 Carsten Allefeld
+% This file is part of v3 of cvmanova, see
+% https://github.com/allefeld/cvmanova/releases
+%
+% Copyright (C) 2013–2016 Carsten Allefeld
 
 
 fprintf('\n\ncvManovaSearchlight\n\n')
