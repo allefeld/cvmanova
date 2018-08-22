@@ -123,7 +123,7 @@ while cvvi < nVolumeVoxels
         
         if (cvvi < nVolumeVoxels) && ~isempty(checkpoint)
             % save checkpoint file
-            save(checkpoint, 'res', 'cvvi', 'cmvi')
+            save(checkpoint, 'res', 'p', 'cvvi', 'cmvi')
         end
     end
 end
