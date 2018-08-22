@@ -34,12 +34,13 @@ values should be computed and defaults to `false`.
 The searchlight radius is interpreted such that every voxel is included for
 which the distance from the center voxel is *smaller than or equal* to the
 radius. This means that 0 leads to a searchlight size of 1 voxel, 1 to 7
-voxels, 2 to 33 voxels, and so on. This definition may differ from the one used
-in other implementations of MVPA algorithms and in publications.  Note that it
-is possible to use fractional values for the searchlight radius. For a table
-of searchlight radii leading to different searchlight sizes, run `slSize`.
+voxels, 2 to 33 voxels, and so on. This definition may differ from the one
+used in other implementations of MVPA algorithms and in publications.  Note
+that it is possible to use fractional values for the searchlight radius. For a
+table of searchlight radii leading to different searchlight sizes, run
+`slSize`.
 
-The result of the analysis are estimates of a multivariate measure of effect
+The result of the analysis are estimates of a measure of multivariate effect
 size, the pattern discriminability *D*, which is intended as a drop-in
 replacement for the conventional measure of classification accuracy.
 Statistical parametric maps of *D* are written to images with filenames of the
@@ -117,16 +118,12 @@ another one.
 
 ## Remarks
 
-– The estimation of *D* is based on the GLM residuals and therefore depends on
-a properly specified model. That means that all effects that are known to
-systematically occur should be included in the model. Because sub-effects can
-be selected through the mechanism of contrasts, it is neither necessary nor
-advisable to use different GLMs as the basis of different MVPA analyses.
+– The estimation of *D* is based on the GLM residuals and therefore depends on a properly specified model. That means that all effects that are known to systematically occur should be included in the model, even if they do not enter the contrast. Because sub-effects can be selected through the mechanism of contrasts, it is neither necessary nor advisable to use different GLMs as the basis of different MVPA analyses of the same data set.
 
 – The fMRI model specification must include the modeling of temporal
 autocorrelations in order to correctly estimate the pattern distinctness. For
 this, the option ‘serial correlations’ in SPM has to be kept at the default value
-`AR(1)`.
+`AR(1)`, or changed to the newer `FAST`.
 
 – The functions are optimized for the computation of several contrasts (and
 permutations) in one run. One call of `cvManovaSearchlight` with several
@@ -173,7 +170,7 @@ kept very small, e.g. 0.001.
 
 The implementation contains a hard-coded limit on the number of voxels within a
 searchlight or ROI regardless of regularization, of 90% of the available error
-degrees of freedom.
+degrees of freedom. That is already a rather large threshold, which one should normally not get close to.
 
 *Note that previous experimental code to estimate the optimal shrinkage
 parameter based on the method of Schäfer and Strimmer (2005) in version 2 has
@@ -188,7 +185,7 @@ cross-validated MANOVA may be negative. That raises the question how such
 values should be interpreted.
 
 The simple answer is: Negative values do not have an interpretation per se, and
-they can never be significantly above zero, so there is no problem for
+they can never be significantly below zero, so there is no problem for
 reporting.
 
 The longer answer is that the values produced by the algorithm are only
@@ -203,26 +200,27 @@ This has an exact analogue in the case of cross-validated classification
 accuracy. The true accuracy can never be below chance level, but estimated
 accuracies can be.
 
-In some cases, the estimated value of pattern distinctness strongly indicates
+In some cases, the estimated value of pattern distinctness strongly suggests
 that the true value is below zero, too. This is most likely the result of a
 violation of the assumption underlying cross-validation, that the different
 parts of the data (sessions) are generated in exactly the same way. This
 assumption may not hold if there are unmodelled confounds in the data, or
 problems with the design itself. *Strongly* negative estimated values of
-pattern distinctness therefore suggest that you should recheck your design
-matrix, or the design itself. Again, the same problem will most likely occur
-with cross-validated classification accuracy computed from the same data.
+pattern distinctness therefore suggest that you should re-check your design
+matrix, or the experimental design itself. Again, the same problem will most
+likely occur with cross-validated classification accuracy computed from the
+same data.
 
 
 ------------------------------------------------------------------------------
 
 Feel free to [contact me](http://www.carsten-allefeld.de/) with questions and
-comments. Bug reports and feature requests can also submitted via the GitHub
+comments. Bug reports and feature requests can also be submitted via the GitHub
 [issue tracker](https://github.com/allefeld/cvmanova/issues).
 
 This software was developed with SPM8 and SPM12 under Matlab 7.11–8.5
 (R2010b–R2015a), but later versions should work, too. It is copyrighted ©
-2013–2016 by Carsten Allefeld and released under the terms of the GNU General
+2013–2018 by Carsten Allefeld and released under the terms of the GNU General
 Public License, version 3 or later.
 
     This file is part of v3 of cvmanova, see
