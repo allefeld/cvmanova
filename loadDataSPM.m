@@ -1,4 +1,4 @@
-function [Ys, Xs, mask, misc] = loadDataSPM(dirName, regions)
+function [Ys, Xs, mask, misc] = loadDataSPM(dirName, regions, whitenfilter)
 
 % load fMRI data via SPM.mat
 %
@@ -32,6 +32,9 @@ function [Ys, Xs, mask, misc] = loadDataSPM(dirName, regions)
 if nargin < 2
     regions = {};
 end
+if nargin < 3
+    whitenfilter = true;
+end
 
 % load SPM.mat
 SPMname = fullfile(dirName, 'SPM.mat');
@@ -58,11 +61,11 @@ end
 % read analysis brain mask image
 assert(isfield(SPM, 'VM'), ' no analysis brain mask in SPM.VM!')
 try
-    mask = logical(spm_read_vols(SPM.VM));
+    mask = (spm_read_vols(SPM.VM) > 0);
 catch
     % SPM8 stores the filename without the path
-    VM = spm_vol([dirName SPM.VM.fname]);
-    mask = logical(spm_read_vols(VM));
+    VM = spm_vol(fullfile(dirName, SPM.VM.fname));
+    mask = (spm_read_vols(VM) > 0);
 end
 fprintf(' %d in-mask voxels\n', sum(mask(:)));
 
@@ -77,11 +80,11 @@ else
     nRegions = numel(regions);
     for i = 1 : nRegions
         if ~isnumeric(regions{i})
-            regions{i} = logical(spmReadVolMatched(regions{i}, VY(1)));
+            regions{i} = (spmReadVolMatched(regions{i}, VY(1)) > 0);
         end
     end
     try
-        regions = logical(cat(4, regions{:}));
+        regions = (cat(4, regions{:}) > 0);
     catch
         error('region masks don''t match!')
     end
@@ -109,30 +112,44 @@ fprintf('  from %s\n', pattern)
 % get design matrix
 X = SPM.xX.X;
 
-% whiten data and design matrix
-if isfield(SPM.xX, 'W')
-    fprintf(' whitening\n')
-    W = SPM.xX.W;
-    Y = W * Y;
-    X = W * X;
-else
-    fprintf(' * SPM.mat does not define whitening matrix!\n')
+if whitenfilter
+    % whiten data and design matrix
+    if isfield(SPM.xX, 'W')
+        fprintf(' whitening\n')
+        W = SPM.xX.W;
+        Y = W * Y;
+        X = W * X;
+    else
+        fprintf(' * SPM.mat does not define whitening matrix!\n')
+    end
+    
+    % high-pass filter data and design matrix
+    fprintf(' high-pass-filtering\n')
+    Y = spm_filter(SPM.xX.K, Y);
+    X = spm_filter(SPM.xX.K, X);
 end
 
-% high-pass filter data and design matrix
-fprintf(' high-pass-filtering\n')
-Y = spm_filter(SPM.xX.K, Y);
-X = spm_filter(SPM.xX.K, X);
-
-% separate Y and X into session blocks
+% separate Y and X into session blocks; also for Bcov, W, XK = K.X0
 m = numel(SPM.nscan);
 Xs = cell(m, 1);
 Ys = cell(m, 1);
+Bcovs = cell(m, 1);
+Ws = cell(m, 1);
+XKs = cell(m, 1);
+if isfield(SPM.xX, 'W')
+    W = SPM.xX.W;
+else
+    W = speye(size(Y, 1), size(Y, 1));
+end
 for si = 1 : m
     Ys{si} = Y(SPM.Sess(si).row, :);
     % SPM.Sess(:).col does not include constant regressors,
     % get those from SPM.xX.iB
-    Xs{si} = X(SPM.Sess(si).row, [SPM.Sess(si).col, SPM.xX.iB(si)]);
+    col = [SPM.Sess(si).col, SPM.xX.iB(si)];
+    Xs{si} = X(SPM.Sess(si).row, col);
+    Bcovs{si} = SPM.xX.Bcov(col, col);
+    Ws{si} = W(SPM.Sess(si).row, SPM.Sess(si).row);
+    XKs{si} = SPM.xX.K(si).X0;
 end
 clear Y X
 
@@ -158,6 +175,14 @@ misc.mat = VY(1).mat;
 misc.fE = Rdf;
 % mask voxel indices for each region
 misc.rmvi = rmvi;
+% parameter estimation covariance
+misc.Bcovs = Bcovs;
+if ~whitenfilter
+    % whitening matrix
+    misc.Ws = Ws;
+    % high-pass filter regressors
+    misc.XKs = XKs;
+end
 
 
 % This program is free software: you can redistribute it and/or modify it
