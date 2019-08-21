@@ -24,10 +24,6 @@ end
 % make sure design information is there
 fnDesign = [sub filesep 'design.mat'];
 if ~exist(fnDesign, 'file')
-    % other design information
-    TR = 2.5;
-    nRuns = 12;
-    nVolsPerRun = 121;
     % extract stimulus information
     fnLabels = [sub filesep 'labels.txt'];
     fprintf('extracting stimulus timing information from %s\n', fnLabels)
