@@ -5,7 +5,7 @@ if ~exist(sub, 'dir')
     
     if ~exist(fn, 'file')
         fprintf('downloading %s\n', fn)
-        websave(fn, url);
+        urlwrite(url, fn);
     end
     
     fprintf('unpacking %s\n', fn)
