@@ -3,7 +3,7 @@ function [res, p] = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
 % general purpose searchlight:
 % apply function to data contained in a sliding spherical window
 %
-% res = runSearchlight(checkpoint, slRadius, mask, fun, ...)
+% [res, p] = runSearchlight(checkpoint, slRadius, mask, fun, ...)
 %
 % checkpoint:   name of checkpoint file ([] to disable checkpointing)
 % slRadius:     radius of searchlight in voxels
@@ -17,7 +17,8 @@ function [res, p] = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
 % mvi:      column vector of linear indices into the mask voxels
 % r:        row vector of results
 % The function is called with mvi = [] first, and the output is used to
-% initialize res.
+% preallocate res. The indices are sorted by increasing distance from the
+% center, so that the first index refers to the center voxel.
 %
 % A voxel is included in the searchlight if its distance from the center is
 % *smaller than or equal to* the radius. Note that fractional values are
@@ -34,7 +35,7 @@ function [res, p] = runSearchlight(checkpoint, slRadius, mask, fun, varargin)
 % This file is part of v3 of cvmanova, see
 % https://github.com/allefeld/cvmanova/releases
 %
-% Copyright (C) 2013–2016 Carsten Allefeld
+% Copyright (C) 2013–2019 Carsten Allefeld
 
 
 % normalize checkpoint file name, preserving emptiness
@@ -59,11 +60,18 @@ dxi = dxi(PSL);
 dyi = dyi(PSL);
 dzi = dzi(PSL);
 % index offsets
-PSL(dim(1), dim(2), dim(3)) = 0;
+PSL(dim(1), dim(2), dim(3)) = 0;        % zero-pad to full volume
 di = find(PSL);
 cInd = find((dxi == 0) & (dyi == 0) & (dzi == 0));
 di = di - di(cInd);                                                         %#ok<FNDSB>
 clear PSL cInd
+
+% sort offsets by increasing distance from center
+[~, ind] = sort(dxi .^ 2 + dyi .^ 2 + dzi .^ 2);
+di = di(ind);
+dxi = dxi(ind);
+dyi = dyi(ind);
+dzi = dzi(ind);
 
 % mapping from volume to mask voxel indices
 vvi2mvi = nan(nVolumeVoxels, 1);
@@ -74,8 +82,6 @@ res = fun(nan(0, 1), varargin{:});
 res = repmat(reshape(res, 1, []), nVolumeVoxels, 1);
 p = nan(nVolumeVoxels, 1);
 
-fprintf(' running searchlight\n')
-fprintf('  searchlight size: %d\n', size(di, 1))
 tic
 t = 0;
 cvvi = 0;   % searchlight center *volume voxel index*
@@ -86,7 +92,7 @@ while cvvi < nVolumeVoxels
     if (cvvi == 1) && ~isempty(checkpoint)
         % load checkpoint file, if existing
         if exist(checkpoint, 'file')
-            load(checkpoint)
+            load(checkpoint, 'res', 'p', 'cvvi', 'cmvi')
             fprintf('  *restart*  %6d voxels  %5.1f %%\n', ...
                 cmvi, cmvi / nMaskVoxels * 100)
         end

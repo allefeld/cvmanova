@@ -38,8 +38,10 @@ NX = null(X);
 % of all the C-range vectors with all the X-null vectors.
 % Squared values indicate the proportion of variance of an effect described
 % by a C-range vector that falls within the null-space of X.
-% The worst-case proportion across the range of C is given by the matrix norm:
+% The worst-case proportion across the range of C is given by the matrix 2-norm:
 ie = norm(NX' * RC);
+
+% *** unnecessarily complicated? equivalent to norm(C' * pinv(X) * X - C')?
 
 
 % This program is free software: you can redistribute it and/or modify it

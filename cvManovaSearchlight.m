@@ -63,9 +63,11 @@ uid = dec2hex(fletcher16(uid), 4);
 fprintf('\ncomputing cross-validated MANOVA on searchlight\n')
 fEMin = sum(misc.fE) - max(misc.fE);
 pMax = slSize(slRadius);
-if pMax > fEMin * 0.9       % ensures decent numerical precision
+if pMax > fEMin * 0.9       % ensures halfways decent numerical precision
     error('data insufficient for searchlight of size %d!', pMax);
 end
+fprintf(' running searchlight\n')
+fprintf('  searchlight size: %d\n', pMax)
 [D, p] = runSearchlight(['cmsCheckpoint' uid '.mat'], slRadius, mask, ...
     @cvManovaCore, Ys, Xs, Cs, misc.fE, permute, lambda);
 clear Xs Ys cvManovaCore    % clear memory
