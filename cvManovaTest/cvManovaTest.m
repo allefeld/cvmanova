@@ -23,6 +23,11 @@
 
 clear
 
+% design information
+TR = 2.5;
+nRuns = 12;
+nVolsPerRun = 121;
+
 % select subject
 sub = 'subj1';
 fprintf('analyzing data of %s from Haxby et al. (2001)\n', sub)

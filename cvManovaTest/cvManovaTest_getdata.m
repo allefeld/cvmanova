@@ -5,7 +5,7 @@ if ~exist(sub, 'dir')
     
     if ~exist(fn, 'file')
         fprintf('downloading %s\n', fn)
-        websave(fn, url);
+        urlwrite(url, fn);
     end
     
     fprintf('unpacking %s\n', fn)
@@ -24,10 +24,6 @@ end
 % make sure design information is there
 fnDesign = [sub filesep 'design.mat'];
 if ~exist(fnDesign, 'file')
-    % other design information
-    TR = 2.5;
-    nRuns = 12;
-    nVolsPerRun = 121;
     % extract stimulus information
     fnLabels = [sub filesep 'labels.txt'];
     fprintf('extracting stimulus timing information from %s\n', fnLabels)

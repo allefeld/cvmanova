@@ -6,8 +6,7 @@ if ~exist(fnSPM, 'file')
     load(fnDesign);
     V = spm_vol(fnBOLD);    % for motion parameters
     mat = cat(4, V.mat);
-    mkdir(modelDir)
-    
+    mkdir(modelDir)   
     fmri_spec = struct;
     fmri_spec.dir = {modelDir};
     fmri_spec.timing.units = 'secs';
