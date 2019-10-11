@@ -7,8 +7,8 @@ if ~exist(fnrBOLD, 'file')
     matlabbatch = {};
     for ri = 1 : nRuns
         vi = (ri - 1) * nVolsPerRun + (1 : nVolsPerRun);
-        vn = spm_select('ExtFPList', sub, '^bold.nii$', vi);
-        matlabbatch{1}.spm.spatial.realign.estwrite.data{ri} = cellstr(vn);
+        vn = arrayfun(@(i) sprintf('%s,%d', fnBOLD, i), vi, 'UniformOutput', false);
+        matlabbatch{1}.spm.spatial.realign.estwrite.data{ri} = vn';
     end
     matlabbatch{1}.spm.spatial.realign.estwrite.eoptions.quality = 0.9;
     matlabbatch{1}.spm.spatial.realign.estwrite.eoptions.sep = 4;

@@ -48,9 +48,7 @@ if ~islogical(mask)
     end
     mask = logical(mask);
 end
-if numel(mask) ~= prod(V(1).dim)
-    error('mask does not match data!')
-end
+assert(numel(mask) == prod(V(1).dim), 'mask does not match data!')
 
 % determine linear indices of in-mask voxels & corresponding image planes
 maskInd = find(mask);

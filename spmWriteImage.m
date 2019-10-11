@@ -38,9 +38,9 @@ function N = spmWriteImage(Y, fname, mat, varargin)
 % For background information, see
 %   http://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/
 %
-% It is possible to store floating-point data that only attain discrete and
-% linearly-spaced values (e.g. ratios) using an integer data type using the
-% linear transformation feature of the NIfTI format,
+% It is however possible to store floating-point data that only attain
+% discrete and linearly-spaced values (e.g. ratios) using an integer data
+% type using the linear transformation feature of the NIfTI format,
 %   spmWriteImage(int, fname, mat, 'scl_slope', slope, 'scl_inter', inter)
 % where int is of class uint8, uint16, or uint32. Upon reading the file,
 % the integer data are automatically transformed according to
@@ -48,7 +48,7 @@ function N = spmWriteImage(Y, fname, mat, varargin)
 % This way the image file may be kept substantially smaller. Note however
 % that 'scl_slope' and 'scl_inter' are stored only with single precision.
 %
-% See also nifti/Contents
+% See also spmCoords, nifti/Contents
 %
 %
 % This file is part of v3 of cvmanova, see
@@ -142,3 +142,4 @@ end
 % it will be useful, but without any warranty; without even the implied
 % warranty of merchantability or fitness for a particular purpose. See the
 % GNU General Public License <http://www.gnu.org/licenses/> for more details.
+

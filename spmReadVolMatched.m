@@ -6,7 +6,11 @@ function Y = spmReadVolMatched(V, Vtemplate, hold)
 %
 % V:            volume struct to read from (or filename)
 % Vtemplate:    volume struct to match (or filename)
-% hold:         interpolation method, see spm_slice_vol
+% hold:         interpolation method (see spm_slice_vol)
+%                    0         : nearest neighbour
+%                    1         : trilinear interpolation
+%                    2 – 127   : higher-order Lagrange interpolation
+%                    -127 – -1 : sinc interpolation
 % Y:            data (3D array)
 %
 % The image data are interpolated while reading in order to match the voxel
@@ -26,7 +30,7 @@ function Y = spmReadVolMatched(V, Vtemplate, hold)
 % consistent. Only the fields mat (4 × 4 matrix) and dim (1 × 3 vector)
 % have to be present.
 %
-% See also spm_write_sn, spm_slice_vol
+% See also spmCoords, spm_write_sn, spm_slice_vol
 %
 %
 % This file is part of v3 of cvmanova, see
