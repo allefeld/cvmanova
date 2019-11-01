@@ -15,14 +15,15 @@ if ~exist(fnSPM, 'file')
     fmri_spec.timing.fmri_t0 = 12;
     for ri = 1 : nRuns
         vi = (ri - 1) * nVolsPerRun + (1 : nVolsPerRun);
-        vn = arrayfun(@(i) sprintf('%s,%d', [pwd filesep fnrBOLD], i), vi, 'UniformOutput', false);
+        vn = arrayfun(@(i) sprintf('%s,%d', [pwd filesep fnrBOLD], i), ...
+            vi, 'UniformOutput', false);
         Q = nan(nVolsPerRun, 6);
         for i = 1 : nVolsPerRun
             qq = spm_imatrix(mat(:, :, vi(i)) / mat(:, :, vi(1)));
             Q(i, :) = qq(1 : 6);
         end
         
-        fmri_spec.sess(ri).scans = vn;
+        fmri_spec.sess(ri).scans = vn';
         for ci = 1 : numel(conditions)
             fmri_spec.sess(ri).cond(ci).name = conditions{ci};
             fmri_spec.sess(ri).cond(ci).onset = onsets{ri, ci};

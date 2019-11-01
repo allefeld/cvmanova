@@ -6,7 +6,7 @@
 %
 % It can also be taken as an example for how to use the implementation.
 %
-% With Matlab 8.5.0 (R2015a) and SPM12 r6685, this script
+% With Matlab R2015a–R2019a and SPM12 r6685, this script
 % produces the following pattern distinctness values on regions:
 %   region 1, contrast 1:  D = 5.443427
 %   region 1, contrast 2:  D = 1.021870
@@ -67,3 +67,4 @@ cvManovaSearchlight(modelDir, 3, Cs)
 % check results
 cvManovaTest_check
 fprintf('\nconsider deleting the directory %s and its contents\n', modelDir)
+
