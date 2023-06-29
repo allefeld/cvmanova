@@ -56,6 +56,16 @@ for ci = 1 : nc
     cName{ci} = l(2:end);
 end
 
+% if no output, print contrasts
+if nargout == 0
+    for ci = 1 : nc
+        fprintf('%s:\n', cName{ci})
+        disp(cMatrix{ci})
+        fprintf('\n')
+    end
+    clear cMatrix cName
+end
+
 
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
